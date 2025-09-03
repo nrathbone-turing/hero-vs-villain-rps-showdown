@@ -1,6 +1,5 @@
 // Characters.jsx
-// Displays a list of popular heroes with MUI Cards and Select buttons.
-// Data is fetched from the Express API (`/api/popular-heroes`).
+// Displays a list of popular heroes with full powerstats and Select buttons.
 
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, Typography, Button, Grid } from '@mui/material'
@@ -40,9 +39,16 @@ function Characters() {
               <Typography variant="h6" component="h3">
                 {hero.name}
               </Typography>
-              <Typography variant="body2">
-                Strength: {hero.powerstats.strength}
-              </Typography>
+              {hero.powerstats && (
+                <>
+                  <Typography variant="body2">Intelligence: {hero.powerstats.intelligence}</Typography>
+                  <Typography variant="body2">Strength: {hero.powerstats.strength}</Typography>
+                  <Typography variant="body2">Speed: {hero.powerstats.speed}</Typography>
+                  <Typography variant="body2">Durability: {hero.powerstats.durability}</Typography>
+                  <Typography variant="body2">Power: {hero.powerstats.power}</Typography>
+                  <Typography variant="body2">Combat: {hero.powerstats.combat}</Typography>
+                </>
+              )}
               <Button
                 variant="contained"
                 color="primary"
