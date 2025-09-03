@@ -1,13 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// App.jsx
+// Root component of the app.
+// Contains navigation links and route definitions for Home, Characters, and Battle pages.
+
+import { Routes, Route, Link } from 'react-router-dom'
+import Home from './pages/Home'
+import Characters from './pages/Characters'
+import Battle from './pages/Battle'
 
 function App() {
   return (
     <div className="App">
-      <h1>Hero vs Villain Showdown</h1>
-      <p>Choose your fighter and start a battle!</p>
+      <nav>
+        <Link to="/">Home</Link> |{" "}
+        <Link to="/characters">Characters</Link> |{" "}
+        <Link to="/battle">Battle</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/characters" element={<Characters />} />
+        <Route path="/battle" element={<Battle />} />
+      </Routes>
     </div>
   )
 }
