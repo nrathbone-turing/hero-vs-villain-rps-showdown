@@ -2,6 +2,7 @@
 // Fetches and displays a single hero with power stats.
 
 import React, { useEffect, useState } from 'react'
+import { Card, CardContent, Typography } from '@mui/material'
 
 function Characters({ heroId = 1 }) {
   const [hero, setHero] = useState(null)
@@ -11,7 +12,9 @@ function Characters({ heroId = 1 }) {
   useEffect(() => {
     async function fetchHero() {
       try {
-        const response = await fetch(`https://superheroapi.com/api/${import.meta.env.VITE_API_KEY}/${heroId}`)
+        const response = await fetch(
+          `https://superheroapi.com/api/${import.meta.env.VITE_API_KEY}/${heroId}`
+        )
         if (!response.ok) throw new Error("Network response was not ok")
         const data = await response.json()
         setHero(data)
@@ -22,16 +25,22 @@ function Characters({ heroId = 1 }) {
       }
     }
     fetchHero()
-  }, [])
+  }, [heroId])
 
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error fetching hero</p>
 
   return (
-    <div>
-      <h2>{hero.name}</h2>
-      <p>Strength: {hero.powerstats.strength}</p>
-    </div>
+    <Card sx={{ maxWidth: 345, margin: '1rem auto' }}>
+      <CardContent>
+        <Typography variant="h5" component="h2">
+          {hero.name}
+        </Typography>
+        <Typography variant="body1">
+          Strength: {hero.powerstats.strength}
+        </Typography>
+      </CardContent>
+    </Card>
   )
 }
 
