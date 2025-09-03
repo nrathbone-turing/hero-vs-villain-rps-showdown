@@ -1,6 +1,5 @@
 // CharactersList.test.jsx
-// Tests for rendering and interaction on the Characters page
-// as we expand it from a single card into a list/grid.
+// Tests for Characters page list/grid rendering with MUI Cards.
 
 import React from 'react'
 import { describe, test, expect, vi } from 'vitest'
@@ -14,7 +13,7 @@ describe("Characters page (list view)", () => {
   test("shows loading state initially", () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => [{ id: 1, name: "A-Bomb", powerstats: { strength: "100" } }],
+      json: async () => [],
     })
 
     render(<Characters />)
@@ -26,17 +25,20 @@ describe("Characters page (list view)", () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => [
-        { id: 1, name: "A-Bomb", powerstats: { strength: "100" } },
         { id: 70, name: "Batman", powerstats: { strength: "50" } },
+        { id: 644, name: "Superman", powerstats: { strength: "100" } },
       ],
     })
 
     render(<Characters />)
 
     await waitFor(() => {
-      expect(screen.getByText(/A-Bomb/i)).toBeInTheDocument()
       expect(screen.getByText(/Batman/i)).toBeInTheDocument()
+      expect(screen.getByText(/Superman/i)).toBeInTheDocument()
     })
+
+    // Ensure MUI Card containers exist
+    expect(screen.getAllByTestId(/hero-card/).length).toBeGreaterThan(1)
   })
 
   test("shows error message if fetch fails", async () => {
@@ -49,23 +51,21 @@ describe("Characters page (list view)", () => {
     })
   })
 
-  test("select button triggers selection callback", async () => {
-    const mockHeroes = [
-      { id: 1, name: "A-Bomb", powerstats: { strength: "100" } },
-    ]
-
+  test("includes Select buttons for each hero", async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => mockHeroes,
+      json: async () => [
+        { id: 720, name: "Wonder Woman", powerstats: { strength: "85" } },
+      ],
     })
 
     render(<Characters />)
 
     await waitFor(() => {
-      expect(screen.getByText(/A-Bomb/i)).toBeInTheDocument()
+      expect(screen.getByText(/Wonder Woman/i)).toBeInTheDocument()
     })
 
-    const button = screen.getByRole('button', { name: /select a-bomb/i })
+    const button = screen.getByRole('button', { name: /select wonder woman/i })
     expect(button).toBeInTheDocument()
   })
 })
