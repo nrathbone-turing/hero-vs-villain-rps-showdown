@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js",
+    "dev": "node index.js",
     "test": "vitest"
   },
   "keywords": [],
@@ -15,11 +15,10 @@
   "dependencies": {
     "axios": "^1.11.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
+    "dotenv": "^16.4.5",
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10",
     "supertest": "^7.1.4",
     "vitest": "^3.2.4"
   }
