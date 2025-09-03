@@ -46,9 +46,8 @@ A capstone project implementing a frontend React application with a backend Expr
 git clone git@github.com:your-username/hero-vs-villain-showdown.git
 cd hero-vs-villain-showdown
 
-# Install client and server deps
-cd client && npm install
-cd ../server && npm install
+# Install all deps (root, client, server)
+npm install
 ```
 
 ### 2. Configure environment variables
@@ -137,7 +136,6 @@ hero-vs-villain-showdown/
 │  │  │  ├─ CharactersList.test.jsx
 │  │  │  └─ ...
 │  ├─ vite.config.js
-│  └─ package.json
 ├─ server/
 │  ├─ api/
 │  │  └─ popularHeroes.js
@@ -145,7 +143,6 @@ hero-vs-villain-showdown/
 │  │  ├─ proxy.test.js
 │  │  └─ popularHeroes.test.js
 │  ├─ index.js
-│  └─ package.json
 └─ .gitignore
 ```
 
