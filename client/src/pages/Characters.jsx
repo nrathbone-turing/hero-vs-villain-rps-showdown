@@ -12,9 +12,7 @@ function Characters({ heroId = 1 }) {
     useEffect(() => {
       async function fetchHero() {
         try {
-          const response = await fetch(
-            `https://superheroapi.com/api/${import.meta.env.VITE_API_KEY}/${heroId}`
-          )
+          const response = await fetch(`/api/hero/${heroId}`)
           if (!response.ok) throw new Error("Network response was not ok")
           const data = await response.json()
           setHero(data)
