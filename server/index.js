@@ -2,6 +2,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import { popularHeroes } from './api/popularHeroes.js'
 
 dotenv.config()
 
@@ -33,6 +34,11 @@ app.get('/api/hero/:id', async (req, res) => {
     console.error("Proxy error:", error.message)
     res.status(500).json({ error: "Failed to fetch hero data" })
   }
+})
+
+// Popular heroes endpoint
+app.get('/api/popular-heroes', (req, res) => {
+  res.json(popularHeroes)
 })
 
 if (process.env.NODE_ENV !== 'test') {
