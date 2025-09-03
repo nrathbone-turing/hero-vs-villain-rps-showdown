@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react'
 
-function Characters() {
+function Characters({ heroId = 1 }) {
   const [hero, setHero] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -11,7 +11,7 @@ function Characters() {
   useEffect(() => {
     async function fetchHero() {
       try {
-        const response = await fetch(`https://superheroapi.com/api/${import.meta.env.VITE_API_KEY}/1`)
+        const response = await fetch(`https://superheroapi.com/api/${import.meta.env.VITE_API_KEY}/${heroId}`)
         if (!response.ok) throw new Error("Network response was not ok")
         const data = await response.json()
         setHero(data)
