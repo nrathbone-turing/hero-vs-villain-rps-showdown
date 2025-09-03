@@ -1,6 +1,6 @@
 // Characters.jsx
 // Displays a list of popular heroes with MUI Cards and Select buttons.
-// Uses fetch to allow test mocks for both success and error cases.
+// Data is fetched from the Express API (`/api/popular-heroes`).
 
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, Typography, Button, Grid } from '@mui/material'
@@ -13,7 +13,7 @@ function Characters() {
   useEffect(() => {
     async function loadHeroes() {
       try {
-        const response = await fetch("/api/popular-heroes") // test will mock this
+        const response = await fetch("/api/popular-heroes")
         if (!response.ok) throw new Error("Network response was not ok")
 
         const data = await response.json()
