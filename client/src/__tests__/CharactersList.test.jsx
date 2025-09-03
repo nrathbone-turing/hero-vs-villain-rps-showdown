@@ -19,7 +19,7 @@ const mockHeroes = [
 ]
 
 describe("Characters page (list view)", () => {
-  test("shows loading state initially", () => {
+  test("shows loading state while fetching /api/popular-heroes", () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => mockHeroes,
@@ -29,7 +29,7 @@ describe("Characters page (list view)", () => {
     expect(screen.getByText(/loading/i)).toBeInTheDocument()
   })
 
-  test("renders multiple heroes after fetch", async () => {
+  test("renders multiple heroes after successful fetch from /api/popular-heroes", async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => mockHeroes,
@@ -45,7 +45,7 @@ describe("Characters page (list view)", () => {
     })
   })
 
-  test("shows error message if fetch fails", async () => {
+  test("shows error message if /api/popular-heroes request fails", async () => {
     fetch.mockRejectedValueOnce(new Error("API error"))
 
     render(<Characters />)
@@ -55,7 +55,7 @@ describe("Characters page (list view)", () => {
     })
   })
 
-  test("renders Select buttons for each hero", async () => {
+  test("renders Select buttons for each hero in the list", async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => mockHeroes,
