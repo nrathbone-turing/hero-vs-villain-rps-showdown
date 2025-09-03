@@ -2,10 +2,12 @@
 // Root component of the app.
 // Contains navigation links and route definitions for Home, Characters, and Battle pages.
 
+import React from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
 import Characters from './pages/Characters'
 import Battle from './pages/Battle'
+import './App.css'
 
 function App() {
   return (
