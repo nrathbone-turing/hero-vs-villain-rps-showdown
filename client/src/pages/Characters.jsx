@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react'
 import { Card, CardContent, Typography } from '@mui/material'
 
-function Characters({ heroId = 1 }) {
+function Characters({ heroId = 720 }) {
     const [hero, setHero] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
