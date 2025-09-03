@@ -35,6 +35,19 @@ app.get('/api/hero/:id', async (req, res) => {
   }
 })
 
+// Temporary static heroes for list endpoint
+const staticHeroes = [
+  { id: 70, name: "Batman", powerstats: { strength: "50" } },
+  { id: 644, name: "Superman", powerstats: { strength: "100" } },
+  { id: 720, name: "Wonder Woman", powerstats: { strength: "85" } },
+  { id: 620, name: "Spider-Man", powerstats: { strength: "55" } },
+]
+
+// Popular heroes endpoint (stub)
+app.get('/api/popular-heroes', (req, res) => {
+  res.json(staticHeroes)
+})
+
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
