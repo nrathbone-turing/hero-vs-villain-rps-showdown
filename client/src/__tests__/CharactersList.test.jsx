@@ -19,53 +19,85 @@ const mockHeroes = [
 ]
 
 describe("Characters page (list view)", () => {
-  test("shows loading state while fetching /api/popular-heroes", () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockHeroes,
+    test("shows loading state while fetching /api/popular-heroes", () => {
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockHeroes,
+      })
+
+      render(<Characters />)
+      expect(screen.getByText(/loading/i)).toBeInTheDocument()
     })
 
-    render(<Characters />)
-    expect(screen.getByText(/loading/i)).toBeInTheDocument()
-  })
+    test("renders multiple heroes after successful fetch from /api/popular-heroes", async () => {
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockHeroes,
+      })
 
-  test("renders multiple heroes after successful fetch from /api/popular-heroes", async () => {
+      render(<Characters />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Batman/i)).toBeInTheDocument()
+        expect(screen.getByText(/Superman/i)).toBeInTheDocument()
+        expect(screen.getByText(/Wonder Woman/i)).toBeInTheDocument()
+        expect(screen.getByText(/Spider-Man/i)).toBeInTheDocument()
+      })
+    })
+
+    test("shows error message if /api/popular-heroes request fails", async () => {
+      fetch.mockRejectedValueOnce(new Error("API error"))
+
+      render(<Characters />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/error fetching heroes/i)).toBeInTheDocument()
+      })
+    })
+
+    test("renders Select buttons for each hero in the list", async () => {
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockHeroes,
+      })
+
+      render(<Characters />)
+
+      await waitFor(() => {
+        const buttons = screen.getAllByRole("button", { name: /select/i })
+        expect(buttons).toHaveLength(mockHeroes.length)
+      })
+    })
+
+    test("renders all hero powerstats after fetch", async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => mockHeroes,
+      json: async () => [
+        {
+          id: 70,
+          name: "Batman",
+          powerstats: {
+            intelligence: "100",
+            strength: "26",
+            speed: "27",
+            durability: "50",
+            power: "47",
+            combat: "100",
+          },
+        },
+      ],
     })
 
     render(<Characters />)
 
     await waitFor(() => {
       expect(screen.getByText(/Batman/i)).toBeInTheDocument()
-      expect(screen.getByText(/Superman/i)).toBeInTheDocument()
-      expect(screen.getByText(/Wonder Woman/i)).toBeInTheDocument()
-      expect(screen.getByText(/Spider-Man/i)).toBeInTheDocument()
-    })
-  })
-
-  test("shows error message if /api/popular-heroes request fails", async () => {
-    fetch.mockRejectedValueOnce(new Error("API error"))
-
-    render(<Characters />)
-
-    await waitFor(() => {
-      expect(screen.getByText(/error fetching heroes/i)).toBeInTheDocument()
-    })
-  })
-
-  test("renders Select buttons for each hero in the list", async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockHeroes,
-    })
-
-    render(<Characters />)
-
-    await waitFor(() => {
-      const buttons = screen.getAllByRole("button", { name: /select/i })
-      expect(buttons).toHaveLength(mockHeroes.length)
+      expect(screen.getByText(/Intelligence: 100/i)).toBeInTheDocument()
+      expect(screen.getByText(/Strength: 26/i)).toBeInTheDocument()
+      expect(screen.getByText(/Speed: 27/i)).toBeInTheDocument()
+      expect(screen.getByText(/Durability: 50/i)).toBeInTheDocument()
+      expect(screen.getByText(/Power: 47/i)).toBeInTheDocument()
+      expect(screen.getByText(/Combat: 100/i)).toBeInTheDocument()
     })
   })
 })
