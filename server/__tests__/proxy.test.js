@@ -1,19 +1,17 @@
 // proxy.test.js
-// Tests for Express proxy server
-
 import request from 'supertest'
 import { vi, describe, test, expect } from 'vitest'
 import app from '../index.js'
 
-// mock node-fetch
-vi.mock('node-fetch', () => ({
-  default: vi.fn(() =>
+// mock global fetch
+beforeAll(() => {
+  global.fetch = vi.fn(() =>
     Promise.resolve({
       ok: true,
       json: () => Promise.resolve({ name: "Mock Hero", powerstats: { strength: "99" } }),
     })
-  ),
-}))
+  )
+})
 
 describe("Server proxy", () => {
   test("responds to health check", async () => {
