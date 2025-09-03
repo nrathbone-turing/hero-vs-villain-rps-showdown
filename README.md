@@ -35,7 +35,7 @@ A capstone project implementing a frontend React application with a backend Expr
 - **Frontend**: React + Vite + React Router + MUI
 - **Backend**: Express + CORS + dotenv
 - **Testing**: Vitest + React Testing Library + Supertest
-- **Deployment**: Vercel (client), Render/Heroku/railway (server) — optional stretch
+- **Deployment**: Vercel (client), Render/Heroku/railway (server) — upcoming for optional stretch
 
 ---
 
@@ -46,13 +46,9 @@ A capstone project implementing a frontend React application with a backend Expr
 git clone git@github.com:your-username/hero-vs-villain-showdown.git
 cd hero-vs-villain-showdown
 
-# Install server deps
-cd server
-npm install
-
-# Install client deps
-cd ../client
-npm install
+# Install client and server deps
+cd client && npm install
+cd ../server && npm install
 ```
 
 ### 2. Configure environment variables
@@ -72,19 +68,19 @@ PORT=5001
 ### 3. Run the app in development
 Start the server (Express API proxy):
 ```
-cd server
-npm run dev
+npm run dev:server
 # -> http://localhost:5001
 ```
 
 Start the client (React app):
 ```
-cd client
-npm run dev
+npm run dev:client
 # -> http://localhost:5173
 ```
 
 The client proxy (via `vite.config.js`) forwards `/api/*` requests to the server.
+
+---
 
 ## API Endpoints
 ### Server (Express)
@@ -101,8 +97,7 @@ The client proxy (via `vite.config.js`) forwards `/api/*` requests to the server
 ## Running Tests
 ### Server
 ```
-cd server
-npm run test
+npm run test:server
 ```
 Covers:
 - `/` health check
@@ -112,16 +107,25 @@ Covers:
 ### Client
 ```
 cd client
-npm run test
+npm run test:client
 ```
 Covers:
 - Routing (Home, Characters, Battle links)
 - Characters list rendering (loading, success, error, select button)
 
+### Both
+```
+npm test
+```
+Runs all client + server tests
+
+---
+
 ## Project Structure
 ```
 hero-vs-villain-showdown/
 ├─ README.md
+├─ package.json
 ├─ client/
 │  ├─ src/
 │  │  ├─ pages/
@@ -144,6 +148,8 @@ hero-vs-villain-showdown/
 │  └─ package.json
 └─ .gitignore
 ```
+
+---
 
 ## About This Repo
 **Author:** Nick Rathbone | [GitHub Profile](https://github.com/nrathbone-turing)

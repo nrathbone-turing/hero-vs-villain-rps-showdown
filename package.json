@@ -1,0 +1,15 @@
+{
+  "name": "hero-vs-villain-rps-showdown",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:client": "npm --prefix client run dev",
+    "dev:server": "npm --prefix server run dev",
+    "start:server": "npm --prefix server run start",
+    "build:client": "npm --prefix client run build",
+    "test:client": "npm --prefix client run test",
+    "test:server": "npm --prefix server run test",
+    "test": "npm run test:client && npm run test:server"
+  }
+}
