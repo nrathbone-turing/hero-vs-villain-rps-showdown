@@ -10,23 +10,20 @@ import Characters from '../pages/Characters'
 global.fetch = vi.fn()
 
 describe("Characters UI", () => {
-  test("renders hero info inside a MUI Card", async () => {
+    test("renders hero info inside a MUI Card", async () => {
     fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ name: "Wonder Woman", powerstats: { strength: "90" } }),
+        ok: true,
+        json: async () => ({ name: "Wonder Woman", powerstats: { strength: "90" } }),
     })
 
     render(<Characters heroId={720} />)
 
-    // Wait for hero name to appear
     await waitFor(() => {
-      expect(screen.getByText(/Wonder Woman/i)).toBeInTheDocument()
-      expect(screen.getByText(/Strength: 90/i)).toBeInTheDocument()
+        expect(screen.getByText(/Wonder Woman/i)).toBeInTheDocument()
+        expect(screen.getByText(/Strength: 90/i)).toBeInTheDocument()
     })
 
-    // Check for a semantic role that matches a Card (MUI Cards render as <div role="presentation"> by default)
-    // Instead, we can check for the "heading" inside Card content:
-    const heading = screen.getByRole("heading", { name: /Wonder Woman/i })
-    expect(heading).toBeInTheDocument()
-  })
+    // Ensure the MUI Card container exists
+    expect(screen.getByTestId("hero-card")).toBeInTheDocument()
+    })
 })
