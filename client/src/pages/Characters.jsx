@@ -1,44 +1,61 @@
 // Characters.jsx
-// Fetches and displays a single hero with power stats.
+// Displays a list of popular heroes with MUI Cards and Select buttons.
+// Uses fetch to allow test mocks for both success and error cases.
 
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, Typography } from '@mui/material'
+import React, { useState, useEffect } from 'react'
+import { Card, CardContent, Typography, Button, Grid } from '@mui/material'
 
-function Characters({ heroId = 720 }) {
-    const [hero, setHero] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
+function Characters() {
+  const [heroes, setHeroes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-    useEffect(() => {
-      async function fetchHero() {
-        try {
-          const response = await fetch(`/api/hero/${heroId}`)
-          if (!response.ok) throw new Error("Network response was not ok")
-          const data = await response.json()
-          setHero(data)
-        } catch (err) {
-          setError(err.message)
-        } finally {
-          setLoading(false)
-        }
+  useEffect(() => {
+    async function loadHeroes() {
+      try {
+        const response = await fetch("/api/popular-heroes") // test will mock this
+        if (!response.ok) throw new Error("Network response was not ok")
+
+        const data = await response.json()
+        setHeroes(data)
+      } catch (err) {
+        setError("Error fetching heroes")
+      } finally {
+        setLoading(false)
       }
-      fetchHero()
-    }, [heroId])
+    }
 
-    if (loading) return <p>Loading...</p>
-    if (error) return <p>Error fetching hero</p>
+    loadHeroes()
+  }, [])
 
-    return (
-    <Card data-testid="hero-card" sx={{ maxWidth: 345, margin: '1rem auto' }}>
-      <CardContent>
-        <Typography variant="h5" component="h2">
-          {hero.name}
-        </Typography>
-        <Typography variant="body1">
-          Strength: {hero.powerstats.strength}
-        </Typography>
-      </CardContent>
-    </Card>
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>{error}</p>
+
+  return (
+    <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
+      {heroes.map((hero) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={hero.id}>
+          <Card data-testid={`hero-card-${hero.id}`} sx={{ maxWidth: 300, margin: 'auto' }}>
+            <CardContent>
+              <Typography variant="h6" component="h3">
+                {hero.name}
+              </Typography>
+              <Typography variant="body2">
+                Strength: {hero.powerstats.strength}
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ marginTop: 1 }}
+                aria-label={`select ${hero.name.toLowerCase()}`}
+              >
+                Select
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   )
 }
 

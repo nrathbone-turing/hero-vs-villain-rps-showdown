@@ -1,33 +1,38 @@
 // CharactersList.test.jsx
-// Tests for Characters page list/grid rendering with MUI Cards.
+// Tests the Characters page list view with mocked fetch.
 
 import React from 'react'
-import { describe, test, expect, vi } from 'vitest'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import Characters from '../pages/Characters'
 
-// Mock fetch globally
-global.fetch = vi.fn()
+// Reset fetch before each test
+beforeEach(() => {
+  global.fetch = vi.fn()
+})
+
+const mockHeroes = [
+  { id: 70, name: "Batman", powerstats: { strength: "50" } },
+  { id: 644, name: "Superman", powerstats: { strength: "1000" } },
+  { id: 720, name: "Wonder Woman", powerstats: { strength: "85" } },
+  { id: 620, name: "Spider-Man", powerstats: { strength: "55" } }
+]
 
 describe("Characters page (list view)", () => {
   test("shows loading state initially", () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => [],
+      json: async () => mockHeroes,
     })
 
     render(<Characters />)
-
     expect(screen.getByText(/loading/i)).toBeInTheDocument()
   })
 
-  test("renders multiple hero cards after fetch", async () => {
+  test("renders multiple heroes after fetch", async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => [
-        { id: 70, name: "Batman", powerstats: { strength: "50" } },
-        { id: 644, name: "Superman", powerstats: { strength: "100" } },
-      ],
+      json: async () => mockHeroes,
     })
 
     render(<Characters />)
@@ -35,10 +40,9 @@ describe("Characters page (list view)", () => {
     await waitFor(() => {
       expect(screen.getByText(/Batman/i)).toBeInTheDocument()
       expect(screen.getByText(/Superman/i)).toBeInTheDocument()
+      expect(screen.getByText(/Wonder Woman/i)).toBeInTheDocument()
+      expect(screen.getByText(/Spider-Man/i)).toBeInTheDocument()
     })
-
-    // Ensure MUI Card containers exist
-    expect(screen.getAllByTestId(/hero-card/).length).toBeGreaterThan(1)
   })
 
   test("shows error message if fetch fails", async () => {
@@ -51,21 +55,17 @@ describe("Characters page (list view)", () => {
     })
   })
 
-  test("includes Select buttons for each hero", async () => {
+  test("renders Select buttons for each hero", async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => [
-        { id: 720, name: "Wonder Woman", powerstats: { strength: "85" } },
-      ],
+      json: async () => mockHeroes,
     })
 
     render(<Characters />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Wonder Woman/i)).toBeInTheDocument()
+      const buttons = screen.getAllByRole("button", { name: /select/i })
+      expect(buttons).toHaveLength(mockHeroes.length)
     })
-
-    const button = screen.getByRole('button', { name: /select wonder woman/i })
-    expect(button).toBeInTheDocument()
   })
 })
