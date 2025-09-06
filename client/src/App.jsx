@@ -16,7 +16,7 @@ function App() {
       <AppBar position="static" color="primary" elevation={2}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            Hero vs Villain
+            Hero vs Villain Showdown
           </Typography>
           <Box>
             <Button color="inherit" component={Link} to="/" data-testid="nav-home">
