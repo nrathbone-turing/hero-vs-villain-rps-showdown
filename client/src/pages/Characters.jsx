@@ -1,13 +1,15 @@
 // Characters.jsx
 // Displays a list of popular heroes with full powerstats, image, and Select buttons.
 
-import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardMedia, Typography, Button, Grid } from '@mui/material'
+import React, { useState, useEffect } from "react"
+import { Card, CardContent, CardMedia, Typography, Button, Grid } from "@mui/material"
+import { useNavigate } from "react-router-dom"
 
 function Characters() {
   const [heroes, setHeroes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function loadHeroes() {
@@ -34,8 +36,8 @@ function Characters() {
     <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
       {heroes.map((hero) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={hero.id}>
-          <Card data-testid={`hero-card-${hero.id}`} sx={{ maxWidth: 300, margin: 'auto' }}>
-            {/* 👇 New image section */}
+          <Card data-testid={`hero-card-${hero.id}`} sx={{ maxWidth: 300, margin: "auto" }}>
+            {/* Hero image */}
             {hero.image && (
               <CardMedia
                 component="img"
@@ -63,6 +65,7 @@ function Characters() {
                 color="primary"
                 sx={{ marginTop: 1 }}
                 aria-label={`select ${hero.name.toLowerCase()}`}
+                onClick={() => navigate("/battle", { state: { hero } })}
               >
                 Select
               </Button>
