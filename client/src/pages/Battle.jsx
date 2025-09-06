@@ -2,12 +2,13 @@
 // Displays the selected hero vs a random opponent and resolves best-of-3 RPS rounds.
 
 import React, { useEffect, useState } from "react"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { Grid, Card, CardContent, CardMedia, Typography, Button } from "@mui/material"
 import { decideRPSChoice } from "../utils/rpsLogic"
 
 function Battle() {
   const location = useLocation()
+  const navigate = useNavigate()
   const hero = location.state?.hero
   const [opponent, setOpponent] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -18,7 +19,7 @@ function Battle() {
   const [heroScore, setHeroScore] = useState(0)
   const [opponentScore, setOpponentScore] = useState(0)
   const [winner, setWinner] = useState(null)
-  const [log, setLog] = useState([]) // 👈 new battle log state
+  const [log, setLog] = useState([])
 
   useEffect(() => {
     async function loadOpponent() {
@@ -79,6 +80,30 @@ function Battle() {
     }
   }
 
+  function handlePlayAgain() {
+    setRound(1)
+    setHeroScore(0)
+    setOpponentScore(0)
+    setWinner(null)
+    setLog([])
+
+    // reroll new opponent (could be same one again, since it’s random)
+    async function rerollOpponent() {
+      try {
+        const response = await fetch("/api/popular-heroes")
+        if (!response.ok) throw new Error("Network error")
+        const data = await response.json()
+        const candidates = data.filter((h) => h.id !== hero?.id)
+        const random = candidates[Math.floor(Math.random() * candidates.length)]
+        setOpponent(random)
+      } catch (err) {
+        setError("Error fetching opponent")
+      }
+    }
+    rerollOpponent()
+  }
+
+
   if (!hero) {
     return <h2>No hero selected. Go back to Characters.</h2>
   }
@@ -126,13 +151,14 @@ function Battle() {
         )}
       </Grid>
 
-      {/* Scoreboard + round controls */}
+      {/* Scoreboard + controls */}
       <div style={{ marginTop: "1rem", textAlign: "center" }}>
         <Typography variant="h6">Round {round}</Typography>
         <Typography variant="body1">
           Score: {heroScore} - {opponentScore}
         </Typography>
 
+        {/* Ongoing battle */}
         {!winner && (
           <Button
             variant="contained"
@@ -144,14 +170,33 @@ function Battle() {
           </Button>
         )}
 
+        {/* Battle finished */}
         {winner && (
-          <Typography variant="h5" sx={{ marginTop: 2 }}>
-            {winner} wins!
-          </Typography>
+          <div>
+            <Typography variant="h5" sx={{ marginTop: 2 }}>
+              {winner} wins!
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ marginTop: 1, marginRight: 1 }}
+              onClick={handlePlayAgain}
+            >
+              Play Again
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              sx={{ marginTop: 1 }}
+              onClick={() => navigate("/characters")}
+            >
+              Pick New Character
+            </Button>
+          </div>
         )}
       </div>
 
-      {/* Battle log display */}
+      {/* Battle log */}
       <div style={{ marginTop: "1rem", textAlign: "center" }}>
         <Typography variant="h6">Battle Log</Typography>
         <ul style={{ listStyle: "none", padding: 0 }}>
