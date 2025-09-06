@@ -45,10 +45,10 @@ function Battle() {
   return (
     <div>
       <h2>Battle Page</h2>
-      <Grid container spacing={2} justifyContent="center">
+      <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
         {/* Selected Hero */}
         <Grid item xs={12} sm={6} md={5}>
-          <Card>
+          <Card data-testid="battle-card-hero">
             {hero.image && (
               <CardMedia component="img" height="200" image={hero.image} alt={hero.name} />
             )}
@@ -62,7 +62,7 @@ function Battle() {
         {/* Opponent */}
         {opponent && (
           <Grid item xs={12} sm={6} md={5}>
-            <Card>
+            <Card data-testid="battle-card-opponent">
               {opponent.image && (
                 <CardMedia
                   component="img"
@@ -78,22 +78,6 @@ function Battle() {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
-        )}
-      </Grid>
-    </div>
-  )
-
-  return (
-    <div>
-      <h2>Battle Page</h2>
-      <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
-        <Grid item xs={12} sm={6} md={5}>
-          {renderCard(hero, "Hero")}
-        </Grid>
-        {opponent && (
-          <Grid item xs={12} sm={6} md={5}>
-            {renderCard(opponent, "Opponent")}
           </Grid>
         )}
       </Grid>
