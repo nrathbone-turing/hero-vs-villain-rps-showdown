@@ -37,7 +37,8 @@ function Characters() {
       {/* Page heading for tests and accessibility */}
       <Typography
         variant="h4"
-        gutterBottom
+        align="center"
+        sx={{ mt: 2, mb: 3, fontWeight: "bold" }}
         data-testid="characters-heading"
       >
         Characters

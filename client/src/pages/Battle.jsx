@@ -1,7 +1,7 @@
 // Battle.jsx
 // Displays the selected hero vs a random opponent and resolves best-of-3 RPS rounds.
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Grid, Card, CardContent, CardMedia, Typography, Button } from "@mui/material"
 import { decideRPSChoice } from "../utils/rpsLogic"
@@ -20,6 +20,15 @@ function Battle() {
   const [opponentScore, setOpponentScore] = useState(0)
   const [winner, setWinner] = useState(null)
   const [log, setLog] = useState([])
+
+  const logRef = useRef(null)
+
+  // scroll battle log to bottom on update
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight
+    }
+  }, [log])
 
   useEffect(() => {
     async function loadOpponent() {
@@ -49,7 +58,7 @@ function Battle() {
 
     let newHeroScore = heroScore
     let newOpponentScore = opponentScore
-    let outcome = "Draw"
+    let result = "draw"
 
     if (
       (heroChoice === "rock" && opponentChoice === "scissors") ||
@@ -57,27 +66,28 @@ function Battle() {
       (heroChoice === "scissors" && opponentChoice === "paper")
     ) {
       newHeroScore++
-      outcome = `${hero.name} wins`
+      result = "hero"
     } else if (heroChoice !== opponentChoice) {
       newOpponentScore++
-      outcome = `${opponent.name} wins`
+      result = "villain"
     }
 
     // Add to log
-    const entry = `Round ${round}: ${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice} → ${outcome}`
+    const entry = {
+      summary: `${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice}`,
+      result,
+    }
     setLog((prev) => [...prev, entry])
 
     // Update scores
     setHeroScore(newHeroScore)
     setOpponentScore(newOpponentScore)
 
-    // Check for best-of-3 before incrementing round
-    if (newHeroScore === 2) {
-      setWinner(hero.name)
-    } else if (newOpponentScore === 2) {
-      setWinner(opponent.name)
+    // Check winner
+    if (newHeroScore === 2 || newOpponentScore === 2) {
+      setWinner(newHeroScore === 2 ? hero.name : opponent.name)
     } else {
-      setRound((prev) => prev + 1) // only advance counter if no winner
+      setRound((prev) => prev + 1)
     }
   }
 
@@ -103,86 +113,178 @@ function Battle() {
     rerollOpponent()
   }
 
-  if (!hero) return <h2>No hero selected. Go back to Characters.</h2>
+  if (!hero) return <h2>No hero selected. Return to Characters and choose your hero!</h2>
   if (loading) return <p>Loading battle...</p>
   if (error) return <p>{error}</p>
 
   return (
     <div>
-      <h2 data-testid="battle-heading">Battle Page</h2>
-      <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
-        {/* Selected Hero */}
-        <Grid xs={12} sm={6} md={5}>
-          <Card data-testid="battle-card-hero" sx={{ width: 320, mx: "auto" }}>
-            {hero.image && (
-              <CardMedia
-                component="img"
-                sx={{ height: 325, objectFit: "cover", width: "100%" }}
-                image={hero.image}
-                alt={hero.name}
-              />
-            )}
-            <CardContent>
-              <Typography variant="h6">Selected Hero: {hero.name}</Typography>
-              <Typography variant="body2">Strength: {hero.powerstats.strength}</Typography>
-            </CardContent>
-          </Card>
+      {/* Page heading for tests and accessibility */}
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{ mt: 2, mb: 3, fontWeight: "bold" }}
+        data-testid="battle-heading"
+      >
+        Battle Page
+      </Typography>
+
+      <Grid container spacing={3} justifyContent="center" sx={{ marginTop: 2 }}>
+        {/* Left placeholder */}
+        <Grid item xs={12} md={3}>
+          {/* blank for now, will use later */}
         </Grid>
 
-        {/* Opponent */}
-        {opponent && (
-          <Grid xs={12} sm={6} md={5}>
-            <Card data-testid="battle-card-opponent" sx={{ width: 320, mx: "auto" }}>
-              {opponent.image && (
+        {/* Center: Hero + Opponent */}
+        <Grid item xs={12} md={6}>
+          <Grid container spacing={2} justifyContent="center">
+            {/* Hero card */}
+            <Grid item xs={12} sm={6}>
+              <Card data-testid="battle-card-hero" sx={{ width: 320, mx: "auto" }}>
                 <CardMedia
                   component="img"
                   sx={{ height: 325, objectFit: "cover", width: "100%" }}
-                  image={opponent.image}
-                  alt={opponent.name}
+                  image={hero.image}
+                  alt={hero.name}
                 />
-              )}
-              <CardContent>
-                <Typography variant="h6">Opponent: {opponent.name}</Typography>
-                <Typography variant="body2">Strength: {opponent.powerstats.strength}</Typography>
-              </CardContent>
-            </Card>
+                <CardContent>
+                  <Typography variant="h6">
+                    <span style={{ color: "green", fontWeight: "bold" }}>Hero:</span> {hero.name}
+                  </Typography>
+                  {hero.powerstats && (
+                    <>
+                      <Typography variant="body2">Intelligence: {hero.powerstats.intelligence}</Typography>
+                      <Typography variant="body2">Strength: {hero.powerstats.strength}</Typography>
+                      <Typography variant="body2">Speed: {hero.powerstats.speed}</Typography>
+                      <Typography variant="body2">Durability: {hero.powerstats.durability}</Typography>
+                      <Typography variant="body2">Power: {hero.powerstats.power}</Typography>
+                      <Typography variant="body2">Combat: {hero.powerstats.combat}</Typography>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Opponent card */}
+            {opponent && (
+              <Grid item xs={12} sm={6}>
+                <Card data-testid="battle-card-opponent" sx={{ width: 320, mx: "auto" }}>
+                  <CardMedia
+                    component="img"
+                    sx={{ height: 325, objectFit: "cover", width: "100%" }}
+                    image={opponent.image}
+                    alt={opponent.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h6">
+                      <span style={{ color: "red", fontWeight: "bold" }}>Villain:</span> {opponent.name}
+                    </Typography>
+                    {opponent.powerstats && (
+                      <>
+                        <Typography variant="body2">Intelligence: {opponent.powerstats.intelligence}</Typography>
+                        <Typography variant="body2">Strength: {opponent.powerstats.strength}</Typography>
+                        <Typography variant="body2">Speed: {opponent.powerstats.speed}</Typography>
+                        <Typography variant="body2">Durability: {opponent.powerstats.durability}</Typography>
+                        <Typography variant="body2">Power: {opponent.powerstats.power}</Typography>
+                        <Typography variant="body2">Combat: {opponent.powerstats.combat}</Typography>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            )}
           </Grid>
-        )}
+        </Grid>
+
+        {/* Right: Scoreboard + Log */}
+        <Grid item xs={12} md={3}>
+          <Card sx={{ p: 2, maxWidth: 280, mx: "auto", minHeight: 550 }}>
+            <Typography variant="h6" data-testid="round-counter">
+              Round {round}
+            </Typography>
+            <Typography variant="body1" data-testid="score-display" sx={{ mb: 2 }}>
+              Score: {heroScore} - {opponentScore}
+            </Typography>
+
+            {!winner && (
+              <Button variant="contained" color="secondary" fullWidth onClick={handlePlayRound}>
+                Play Round
+              </Button>
+            )}
+
+            {winner && (
+              <>
+                <Typography
+                  variant="h5"
+                  data-testid="winner-message"
+                  sx={{ mt: 2, fontWeight: "bold", color: "green" }}
+                >
+                  {winner} wins!
+                </Typography>
+                <Button variant="contained" color="primary" fullWidth sx={{ mt: 1 }} onClick={handlePlayAgain}>
+                  Play Again
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  fullWidth
+                  sx={{ mt: 1 }}
+                  onClick={() => navigate("/characters")}
+                >
+                  Pick New Character
+                </Button>
+              </>
+            )}
+
+            <Typography variant="h6" sx={{ mt: 3 }}>
+              Battle Log
+            </Typography>
+            <div
+              ref={logRef}
+              style={{
+                maxHeight: "250px",
+                overflowY: "auto",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "0.5rem",
+                marginTop: "0.5rem",
+                backgroundColor: "#fafafa",
+              }}
+            >
+              {log.length === 0 ? (
+                <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+                  No rounds yet — click Play Round to begin!
+                </Typography>
+              ) : (
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {log.map((entry, idx) => (
+                    <li key={idx} style={{ marginBottom: "0.75rem" }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                        Round {idx + 1}
+                      </Typography>
+                      <Typography variant="body2">{entry.summary}</Typography>
+                      {entry.result === "draw" ? (
+                        <Typography variant="body2" sx={{ color: "gray" }}>
+                          Draw
+                        </Typography>
+                      ) : entry.result === "hero" ? (
+                        <Typography variant="body2" sx={{ color: "green" }}>
+                          🦸 {hero.name} wins 🦸
+                        </Typography>
+                      ) : (
+                        <Typography variant="body2" sx={{ color: "red" }}>
+                          🦹 {opponent.name} wins 🦹
+                        </Typography>
+                      )}
+                      <hr style={{ margin: "6px 0", border: "0.5px solid #eee" }} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </Card>
+        </Grid>
       </Grid>
-
-      {/* Scoreboard + controls */}
-      <div style={{ marginTop: "1rem", textAlign: "center" }}>
-        <Typography variant="h6" data-testid="round-counter">Round {round}</Typography>
-        <Typography variant="body1">Score: {heroScore} - {opponentScore}</Typography>
-
-        {!winner && (
-          <Button variant="contained" color="secondary" sx={{ marginTop: 1 }} onClick={handlePlayRound}>
-            Play Round
-          </Button>
-        )}
-
-        {winner && (
-          <div>
-            <Typography variant="h5" sx={{ marginTop: 2 }}>{winner} wins!</Typography>
-            <Button variant="contained" color="primary" sx={{ marginTop: 1, marginRight: 1 }} onClick={handlePlayAgain}>
-              Play Again
-            </Button>
-            <Button variant="outlined" color="secondary" sx={{ marginTop: 1 }} onClick={() => navigate("/characters")}>
-              Pick New Character
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Battle log */}
-      <div style={{ marginTop: "1rem", textAlign: "center" }}>
-        <Typography variant="h6">Battle Log</Typography>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {log.map((entry, idx) => (
-            <li key={idx}>{entry}</li>
-          ))}
-        </ul>
-      </div>
     </div>
   )
 }

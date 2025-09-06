@@ -3,7 +3,7 @@
 
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { MemoryRouter, Routes, Route } from "react-router-dom"
 import Battle from "../pages/Battle"
 
@@ -62,7 +62,6 @@ describe("Battle page layout", () => {
       </MemoryRouter>
     )
 
-    // Find both battle cards by testid
     const heroCard = await screen.findByTestId("battle-card-hero")
     const opponentCard = await screen.findByTestId("battle-card-opponent")
 
@@ -79,8 +78,54 @@ describe("Battle page layout", () => {
       </MemoryRouter>
     )
 
-    expect(
-      screen.getByText(/no hero selected/i)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/no hero selected/i)).toBeInTheDocument()
+  })
+
+  test("renders round counter and score", async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
+      >
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    expect(await screen.findByTestId("round-counter")).toHaveTextContent(/Round 1/i)
+    expect(screen.getByText(/Score:/i)).toBeInTheDocument()
+  })
+
+  test("appends entries to battle log after playing rounds", async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
+      >
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    const playButton = await screen.findByRole("button", { name: /play round/i })
+    fireEvent.click(playButton)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Round 1:/i)).toBeInTheDocument()
+    })
+  })
+
+  test("battle log container is rendered (future scrollable)", async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
+      >
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    expect(await screen.findByText(/Battle Log/i)).toBeInTheDocument()
   })
 })
