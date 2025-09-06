@@ -42,38 +42,38 @@ function Battle() {
   }, [hero])
 
   function handlePlayRound() {
-    if (!hero || !opponent || winner) return
+  if (!hero || !opponent || winner) return
 
-    const heroChoice = decideRPSChoice(hero)
-    const opponentChoice = decideRPSChoice(opponent)
+  const heroChoice = decideRPSChoice(hero)
+  const opponentChoice = decideRPSChoice(opponent)
 
-    let newHeroScore = heroScore
-    let newOpponentScore = opponentScore
-    let outcome = "Draw"
+  let newHeroScore = heroScore
+  let newOpponentScore = opponentScore
+  let outcome = "Draw"
 
-    if (
-      (heroChoice === "rock" && opponentChoice === "scissors") ||
-      (heroChoice === "paper" && opponentChoice === "rock") ||
-      (heroChoice === "scissors" && opponentChoice === "paper")
-    ) {
-      newHeroScore++
-      outcome = `${hero.name} wins`
-    } else if (heroChoice !== opponentChoice) {
-      newOpponentScore++
-      outcome = `${opponent.name} wins`
-    }
+  if (
+    (heroChoice === "rock" && opponentChoice === "scissors") ||
+    (heroChoice === "paper" && opponentChoice === "rock") ||
+    (heroChoice === "scissors" && opponentChoice === "paper")
+  ) {
+    newHeroScore++
+    outcome = `${hero.name} wins`
+  } else if (heroChoice !== opponentChoice) {
+    newOpponentScore++
+    outcome = `${opponent.name} wins`
+  }
 
-    // Add this round to log
-    const entry = `Round ${round}: ${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice} → ${outcome}`
-    setLog((prev) => [...prev, entry])
+  // Log round
+  const entry = `Round ${round}: ${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice} → ${outcome}`
+  setLog((prev) => [...prev, entry])
 
-    // Update state
-    setHeroScore(newHeroScore)
-    setOpponentScore(newOpponentScore)
-    setRound((prev) => prev + 1)
+  // Update scores + round
+  setHeroScore(newHeroScore)
+  setOpponentScore(newOpponentScore)
+  setRound((prev) => prev + 1)
 
-    // check for best-of-3
-    if (newHeroScore === 2) {
+  // winner is only set when someone reaches 2 wins
+  if (newHeroScore === 2) {
       setWinner(hero.name)
     } else if (newOpponentScore === 2) {
       setWinner(opponent.name)
