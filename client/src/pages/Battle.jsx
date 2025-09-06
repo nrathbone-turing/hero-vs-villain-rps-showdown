@@ -109,7 +109,7 @@ function Battle() {
 
   return (
     <div>
-      <h2>Battle Page</h2>
+      <h2 data-testid="battle-heading">Battle Page</h2>
       <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
         {/* Selected Hero */}
         <Grid xs={12} sm={6} md={5}>
