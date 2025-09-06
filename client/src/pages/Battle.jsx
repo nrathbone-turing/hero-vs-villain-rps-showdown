@@ -1,9 +1,11 @@
 // Battle.jsx
-// Displays the selected hero vs a random opponent from /api/popular-heroes.
+// Displays the selected hero vs a random opponent from /api/popular-heroes,
+// and resolves a Rock–Paper–Scissors round between them.
 
 import React, { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
 import { Grid, Card, CardContent, CardMedia, Typography } from "@mui/material"
+import { resolveRound } from "../utils/rpsRound"
 
 function Battle() {
   const location = useLocation()
@@ -11,6 +13,7 @@ function Battle() {
   const [opponent, setOpponent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [roundResult, setRoundResult] = useState(null)
 
   useEffect(() => {
     async function loadOpponent() {
@@ -34,6 +37,14 @@ function Battle() {
       loadOpponent()
     }
   }, [hero])
+
+  // Once both hero + opponent exist, resolve a round
+  useEffect(() => {
+    if (hero && opponent) {
+      const result = resolveRound(hero, opponent)
+      setRoundResult(result)
+    }
+  }, [hero, opponent])
 
   if (!hero) {
     return <h2>No hero selected. Go back to Characters.</h2>
@@ -81,6 +92,24 @@ function Battle() {
           </Grid>
         )}
       </Grid>
+
+      {/* Round result */}
+      {roundResult && (
+        <div style={{ marginTop: "1rem", textAlign: "center" }}>
+          <Typography variant="h5">Round Result</Typography>
+          <Typography variant="body1">
+            {hero.name} chose {roundResult.heroMove}, {opponent.name} chose{" "}
+            {roundResult.opponentMove}.
+          </Typography>
+          <Typography variant="h6">
+            {roundResult.winner === "tie"
+              ? "It's a tie!"
+              : roundResult.winner === "hero"
+              ? `${hero.name} wins!`
+              : `${opponent.name} wins!`}
+          </Typography>
+        </div>
+      )}
     </div>
   )
 }
