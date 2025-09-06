@@ -98,4 +98,28 @@ describe("Battle round resolution", () => {
     // Score should reflect exactly 2 - 0 (draws didn’t increment)
     expect(screen.getByText(/Score: 2 - 0/i)).toBeInTheDocument()
   })
+
+  test("does not advance round counter after winner is declared", async () => {
+    vi.spyOn(rpsLogic, "decideRPSChoice")
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win → Batman wins
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    // play two winning rounds
+    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+
+    // confirm winner is declared
+    expect(await screen.findByText(/Batman wins!/i)).toBeInTheDocument()
+
+    // round counter should stay at 2 (not advance to 3)
+    expect(screen.getByTestId("round-counter")).toHaveTextContent("Round 2")
+  })
 })

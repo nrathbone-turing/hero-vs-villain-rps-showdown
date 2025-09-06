@@ -63,17 +63,21 @@ function Battle() {
       outcome = `${opponent.name} wins`
     }
 
+    // Add to log
     const entry = `Round ${round}: ${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice} → ${outcome}`
     setLog((prev) => [...prev, entry])
 
+    // Update scores
     setHeroScore(newHeroScore)
     setOpponentScore(newOpponentScore)
-    setRound((prev) => prev + 1)
 
+    // Check for best-of-3 before incrementing round
     if (newHeroScore === 2) {
       setWinner(hero.name)
     } else if (newOpponentScore === 2) {
       setWinner(opponent.name)
+    } else {
+      setRound((prev) => prev + 1) // only advance counter if no winner
     }
   }
 
@@ -148,7 +152,7 @@ function Battle() {
 
       {/* Scoreboard + controls */}
       <div style={{ marginTop: "1rem", textAlign: "center" }}>
-        <Typography variant="h6">Round {round}</Typography>
+        <Typography variant="h6" data-testid="round-counter">Round {round}</Typography>
         <Typography variant="body1">Score: {heroScore} - {opponentScore}</Typography>
 
         {!winner && (
