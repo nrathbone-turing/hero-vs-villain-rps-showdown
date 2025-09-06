@@ -1,24 +1,38 @@
 // App.jsx
-// Root component with navigation and routing.
+// Root component with global navigation and routing.
 
-import React from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
-import Home from './pages/Home'
-import Characters from './pages/Characters'
-import Battle from './pages/Battle'
-import './App.css'
+import React from "react"
+import { Routes, Route, Link } from "react-router-dom"
+import Home from "./pages/Home"
+import Characters from "./pages/Characters"
+import Battle from "./pages/Battle"
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material"
+import "./App.css"
 
 function App() {
   return (
     <div id="app">
-      <header>
-        <nav>
-          <Link to="/">Home</Link> |{" "}
-          <Link to="/characters">Characters</Link> |{" "}
-          <Link to="/battle">Battle</Link>
-        </nav>
-      </header>
+      {/* Global Nav */}
+      <AppBar position="static" color="primary" elevation={2}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            Hero vs Villain
+          </Typography>
+          <Box>
+            <Button color="inherit" component={Link} to="/" data-testid="nav-home">
+              Home
+            </Button>
+            <Button color="inherit" component={Link} to="/characters" data-testid="nav-characters">
+              Characters
+            </Button>
+            <Button color="inherit" component={Link} to="/battle" data-testid="nav-battle">
+              Battle
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
+      {/* Page Routing */}
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
