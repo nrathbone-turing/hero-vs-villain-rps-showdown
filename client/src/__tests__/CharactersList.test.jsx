@@ -121,4 +121,16 @@ describe("Characters page (list view)", () => {
       expect(images[0]).toHaveAttribute("src", "batman.jpg")
     })
   })
+
+  test("renders Characters heading with test id", async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockHeroes,
+    })
+
+    renderWithRouter(<Characters />)
+
+    expect(await screen.findByTestId("characters-heading")).toBeInTheDocument()
+  })
+
 })
