@@ -18,6 +18,7 @@ function Battle() {
   const [heroScore, setHeroScore] = useState(0)
   const [opponentScore, setOpponentScore] = useState(0)
   const [winner, setWinner] = useState(null)
+  const [log, setLog] = useState([]) // 👈 new battle log state
 
   useEffect(() => {
     async function loadOpponent() {
@@ -45,22 +46,35 @@ function Battle() {
     const heroChoice = decideRPSChoice(hero)
     const opponentChoice = decideRPSChoice(opponent)
 
+    let newHeroScore = heroScore
+    let newOpponentScore = opponentScore
+    let outcome = "Draw"
+
     if (
       (heroChoice === "rock" && opponentChoice === "scissors") ||
       (heroChoice === "paper" && opponentChoice === "rock") ||
       (heroChoice === "scissors" && opponentChoice === "paper")
     ) {
-      setHeroScore((prev) => prev + 1)
+      newHeroScore++
+      outcome = `${hero.name} wins`
     } else if (heroChoice !== opponentChoice) {
-      setOpponentScore((prev) => prev + 1)
+      newOpponentScore++
+      outcome = `${opponent.name} wins`
     }
 
+    // Add this round to log
+    const entry = `Round ${round}: ${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice} → ${outcome}`
+    setLog((prev) => [...prev, entry])
+
+    // Update state
+    setHeroScore(newHeroScore)
+    setOpponentScore(newOpponentScore)
     setRound((prev) => prev + 1)
 
     // check for best-of-3
-    if (heroScore + 1 === 2) {
+    if (newHeroScore === 2) {
       setWinner(hero.name)
-    } else if (opponentScore + 1 === 2) {
+    } else if (newOpponentScore === 2) {
       setWinner(opponent.name)
     }
   }
@@ -135,6 +149,16 @@ function Battle() {
             {winner} wins!
           </Typography>
         )}
+      </div>
+
+      {/* Battle log display */}
+      <div style={{ marginTop: "1rem", textAlign: "center" }}>
+        <Typography variant="h6">Battle Log</Typography>
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {log.map((entry, idx) => (
+            <li key={idx}>{entry}</li>
+          ))}
+        </ul>
       </div>
     </div>
   )
