@@ -1,11 +1,10 @@
 // Battle.jsx
-// Displays the selected hero vs a random opponent from /api/popular-heroes,
-// and resolves a Rock–Paper–Scissors round between them.
+// Displays the selected hero vs a random opponent and resolves best-of-3 RPS rounds.
 
 import React, { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
-import { Grid, Card, CardContent, CardMedia, Typography } from "@mui/material"
-import { resolveRound } from "../utils/rpsRound"
+import { Grid, Card, CardContent, CardMedia, Typography, Button } from "@mui/material"
+import { decideRPSChoice } from "../utils/rpsLogic"
 
 function Battle() {
   const location = useLocation()
@@ -13,7 +12,12 @@ function Battle() {
   const [opponent, setOpponent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [roundResult, setRoundResult] = useState(null)
+
+  // round state
+  const [round, setRound] = useState(1)
+  const [heroScore, setHeroScore] = useState(0)
+  const [opponentScore, setOpponentScore] = useState(0)
+  const [winner, setWinner] = useState(null)
 
   useEffect(() => {
     async function loadOpponent() {
@@ -22,7 +26,6 @@ function Battle() {
         if (!response.ok) throw new Error("Network error")
 
         const data = await response.json()
-        // Pick a random opponent that isn’t the selected hero
         const candidates = data.filter((h) => h.id !== hero?.id)
         const random = candidates[Math.floor(Math.random() * candidates.length)]
         setOpponent(random)
@@ -33,18 +36,34 @@ function Battle() {
       }
     }
 
-    if (hero) {
-      loadOpponent()
-    }
+    if (hero) loadOpponent()
   }, [hero])
 
-  // Once both hero + opponent exist, resolve a round
-  useEffect(() => {
-    if (hero && opponent) {
-      const result = resolveRound(hero, opponent)
-      setRoundResult(result)
+  function handlePlayRound() {
+    if (!hero || !opponent || winner) return
+
+    const heroChoice = decideRPSChoice(hero)
+    const opponentChoice = decideRPSChoice(opponent)
+
+    if (
+      (heroChoice === "rock" && opponentChoice === "scissors") ||
+      (heroChoice === "paper" && opponentChoice === "rock") ||
+      (heroChoice === "scissors" && opponentChoice === "paper")
+    ) {
+      setHeroScore((prev) => prev + 1)
+    } else if (heroChoice !== opponentChoice) {
+      setOpponentScore((prev) => prev + 1)
     }
-  }, [hero, opponent])
+
+    setRound((prev) => prev + 1)
+
+    // check for best-of-3
+    if (heroScore + 1 === 2) {
+      setWinner(hero.name)
+    } else if (opponentScore + 1 === 2) {
+      setWinner(opponent.name)
+    }
+  }
 
   if (!hero) {
     return <h2>No hero selected. Go back to Characters.</h2>
@@ -93,23 +112,30 @@ function Battle() {
         )}
       </Grid>
 
-      {/* Round result */}
-      {roundResult && (
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <Typography variant="h5">Round Result</Typography>
-          <Typography variant="body1">
-            {hero.name} chose {roundResult.heroMove}, {opponent.name} chose{" "}
-            {roundResult.opponentMove}.
+      {/* Scoreboard + round controls */}
+      <div style={{ marginTop: "1rem", textAlign: "center" }}>
+        <Typography variant="h6">Round {round}</Typography>
+        <Typography variant="body1">
+          Score: {heroScore} - {opponentScore}
+        </Typography>
+
+        {!winner && (
+          <Button
+            variant="contained"
+            color="secondary"
+            sx={{ marginTop: 1 }}
+            onClick={handlePlayRound}
+          >
+            Play Round
+          </Button>
+        )}
+
+        {winner && (
+          <Typography variant="h5" sx={{ marginTop: 2 }}>
+            {winner} wins!
           </Typography>
-          <Typography variant="h6">
-            {roundResult.winner === "tie"
-              ? "It's a tie!"
-              : roundResult.winner === "hero"
-              ? `${hero.name} wins!`
-              : `${opponent.name} wins!`}
-          </Typography>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
