@@ -33,16 +33,16 @@ describe("Battle retry options", () => {
       </MemoryRouter>
     )
 
-    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
-    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByTestId("play-round-btn"))
+    fireEvent.click(await screen.findByTestId("play-round-btn"))
 
-    expect(await screen.findByRole("button", { name: /play again/i })).toBeInTheDocument()
+    expect(await screen.findByTestId("play-again-btn")).toBeInTheDocument()
   })
 
   test("shows Pick New Character button after winner is declared", async () => {
     vi.spyOn(rpsLogic, "decideRPSChoice")
-      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win
-      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win again
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors")
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors")
 
     render(
       <MemoryRouter
@@ -55,16 +55,16 @@ describe("Battle retry options", () => {
       </MemoryRouter>
     )
 
-    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
-    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByTestId("play-round-btn"))
+    fireEvent.click(await screen.findByTestId("play-round-btn"))
 
-    expect(await screen.findByRole("button", { name: /pick new character/i })).toBeInTheDocument()
+    expect(await screen.findByTestId("pick-new-btn")).toBeInTheDocument()
   })
 
   test("shows both retry options after winner is declared", async () => {
     vi.spyOn(rpsLogic, "decideRPSChoice")
-      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win
-      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win again
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors")
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors")
 
     render(
       <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
@@ -74,10 +74,11 @@ describe("Battle retry options", () => {
       </MemoryRouter>
     )
 
-    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
-    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByTestId("play-round-btn"))
+    fireEvent.click(await screen.findByTestId("play-round-btn"))
 
-    expect(await screen.findByRole("button", { name: /play again/i })).toBeInTheDocument()
-    expect(await screen.findByRole("button", { name: /pick new character/i })).toBeInTheDocument()
+    expect(await screen.findByTestId("play-again-btn")).toBeInTheDocument()
+    expect(await screen.findByTestId("pick-new-btn")).toBeInTheDocument()
+
   })
 })
