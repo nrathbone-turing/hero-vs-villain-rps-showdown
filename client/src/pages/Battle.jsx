@@ -83,6 +83,22 @@ function Battle() {
       </Grid>
     </div>
   )
+
+  return (
+    <div>
+      <h2>Battle Page</h2>
+      <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
+        <Grid item xs={12} sm={6} md={5}>
+          {renderCard(hero, "Hero")}
+        </Grid>
+        {opponent && (
+          <Grid item xs={12} sm={6} md={5}>
+            {renderCard(opponent, "Opponent")}
+          </Grid>
+        )}
+      </Grid>
+    </div>
+  )
 }
 
 export default Battle
