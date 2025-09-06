@@ -4,6 +4,7 @@
 import React from 'react'
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import Characters from '../pages/Characters'
 
 // Reset fetch before each test
@@ -18,6 +19,10 @@ const mockHeroes = [
   { id: 620, name: "Spider-Man", image: "spiderman.jpg", powerstats: { strength: "55" } }
 ]
 
+function renderWithRouter(ui) {
+  return render(<MemoryRouter>{ui}</MemoryRouter>)
+}
+
 describe("Characters page (list view)", () => {
   test("shows loading state while fetching /api/popular-heroes", () => {
     fetch.mockResolvedValueOnce({
@@ -25,7 +30,7 @@ describe("Characters page (list view)", () => {
       json: async () => mockHeroes,
     })
 
-    render(<Characters />)
+    renderWithRouter(<Characters />)
     expect(screen.getByText(/loading/i)).toBeInTheDocument()
   })
 
@@ -35,7 +40,7 @@ describe("Characters page (list view)", () => {
       json: async () => mockHeroes,
     })
 
-    render(<Characters />)
+    renderWithRouter(<Characters />)
 
     await waitFor(() => {
       expect(screen.getByText(/Batman/i)).toBeInTheDocument()
@@ -48,7 +53,7 @@ describe("Characters page (list view)", () => {
   test("shows error message if /api/popular-heroes request fails", async () => {
     fetch.mockRejectedValueOnce(new Error("API error"))
 
-    render(<Characters />)
+    renderWithRouter(<Characters />)
 
     await waitFor(() => {
       expect(screen.getByText(/error fetching heroes/i)).toBeInTheDocument()
@@ -61,7 +66,7 @@ describe("Characters page (list view)", () => {
       json: async () => mockHeroes,
     })
 
-    render(<Characters />)
+    renderWithRouter(<Characters />)
 
     await waitFor(() => {
       const buttons = screen.getAllByRole("button", { name: /select/i })
@@ -89,7 +94,7 @@ describe("Characters page (list view)", () => {
       ],
     })
 
-    render(<Characters />)
+    renderWithRouter(<Characters />)
 
     await waitFor(() => {
       expect(screen.getByText(/Batman/i)).toBeInTheDocument()
@@ -108,7 +113,7 @@ describe("Characters page (list view)", () => {
       json: async () => mockHeroes,
     })
 
-    render(<Characters />)
+    renderWithRouter(<Characters />)
 
     await waitFor(() => {
       const images = screen.getAllByRole("img")
