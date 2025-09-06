@@ -67,4 +67,35 @@ describe("Battle round resolution", () => {
 
     expect(await screen.findByText(/Batman wins!/i)).toBeInTheDocument()
   })
+
+  test("handles multiple draws before declaring a winner", async () => {
+    // 3 draws, then hero wins twice
+    vi.spyOn(rpsLogic, "decideRPSChoice")
+      .mockReturnValueOnce("rock").mockReturnValueOnce("rock")       // draw
+      .mockReturnValueOnce("paper").mockReturnValueOnce("paper")     // draw
+      .mockReturnValueOnce("scissors").mockReturnValueOnce("scissors") // draw
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors")   // hero win
+      .mockReturnValueOnce("rock").mockReturnValueOnce("scissors")   // hero win
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    // play 5 rounds (3 draws + 2 wins)
+    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+    fireEvent.click(await screen.findByRole("button", { name: /play round/i }))
+
+    // Hero should win after reaching 2 wins despite multiple draws
+    expect(await screen.findByText(/Batman wins!/i)).toBeInTheDocument()
+
+    // Score should reflect exactly 2 - 0 (draws didn’t increment)
+    expect(screen.getByText(/Score: 2 - 0/i)).toBeInTheDocument()
+  })
 })
