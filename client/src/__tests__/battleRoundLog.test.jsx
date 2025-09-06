@@ -1,4 +1,6 @@
 // battleRoundLog.test.jsx
+// Tests for Battle log entries after playing rounds in Battle.jsx
+
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, fireEvent } from "@testing-library/react"
@@ -19,7 +21,7 @@ beforeEach(() => {
 describe("Battle round log", () => {
   test("displays log entry after playing a round", async () => {
     vi.spyOn(rpsLogic, "decideRPSChoice")
-      .mockReturnValueOnce("rock") // hero
+      .mockReturnValueOnce("rock")     // hero
       .mockReturnValueOnce("scissors") // opponent
 
     render(
@@ -30,18 +32,17 @@ describe("Battle round log", () => {
       </MemoryRouter>
     )
 
-    const playButton = await screen.findByRole("button", { name: /play round/i })
-    fireEvent.click(playButton)
+    fireEvent.click(await screen.findByTestId("play-round-btn"))
 
-    expect(await screen.findByText(/Superman chose rock/i)).toBeInTheDocument()
-    expect(screen.getByText(/Batman chose scissors/i)).toBeInTheDocument()
-    expect(screen.getByText(/→ Superman wins/i)).toBeInTheDocument()
+    expect(await screen.findByTestId("log-entry-0")).toBeInTheDocument()
+    expect(screen.getByTestId("log-entry-1")).toBeInTheDocument()
+    expect(await screen.findByTestId("log-entry-0")).toHaveTextContent("Superman wins")
   })
 
   test("appends multiple rounds to the log", async () => {
     vi.spyOn(rpsLogic, "decideRPSChoice")
       .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // Round 1
-      .mockReturnValueOnce("paper").mockReturnValueOnce("rock") // Round 2
+      .mockReturnValueOnce("paper").mockReturnValueOnce("rock")    // Round 2
 
     render(
       <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
@@ -51,11 +52,13 @@ describe("Battle round log", () => {
       </MemoryRouter>
     )
 
-    const playButton = await screen.findByRole("button", { name: /play round/i })
+    const playButton = await screen.findByTestId("play-round-btn")
     fireEvent.click(playButton)
     fireEvent.click(playButton)
 
-    expect(await screen.findByText(/Round 1: Superman chose rock, Batman chose scissors/i)).toBeInTheDocument()
-    expect(screen.getByText(/Round 2: Superman chose paper, Batman chose rock/i)).toBeInTheDocument()
+    expect(await screen.findByTestId("round-1-heading")).toHaveTextContent("Round 1")
+    expect(screen.getByTestId("round-1-choices")).toHaveTextContent("Superman chose rock, Batman chose scissors")
+    expect(screen.getByTestId("round-2-heading")).toHaveTextContent("Round 2")
+    expect(screen.getByTestId("round-2-choices")).toHaveTextContent("Superman chose paper, Batman chose rock")
   })
 })
