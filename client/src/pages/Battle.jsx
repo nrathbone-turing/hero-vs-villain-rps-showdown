@@ -131,9 +131,7 @@ function Battle() {
 
       <Grid container spacing={3} justifyContent="center" sx={{ marginTop: 2 }}>
         {/* Left placeholder */}
-        <Grid item xs={12} md={3}>
-          {/* blank for now, will use later */}
-        </Grid>
+        <Grid item xs={12} md={3}></Grid>
 
         {/* Center: Hero + Opponent */}
         <Grid item xs={12} md={6}>
@@ -148,7 +146,7 @@ function Battle() {
                   alt={hero.name}
                 />
                 <CardContent>
-                  <Typography variant="h6">
+                  <Typography variant="h6" data-testid="hero-name">
                     <span style={{ color: "green", fontWeight: "bold" }}>Hero:</span> {hero.name}
                   </Typography>
                   {hero.powerstats && (
@@ -176,7 +174,7 @@ function Battle() {
                     alt={opponent.name}
                   />
                   <CardContent>
-                    <Typography variant="h6">
+                    <Typography variant="h6" data-testid="opponent-name">
                       <span style={{ color: "red", fontWeight: "bold" }}>Villain:</span> {opponent.name}
                     </Typography>
                     {opponent.powerstats && (
@@ -207,7 +205,13 @@ function Battle() {
             </Typography>
 
             {!winner && (
-              <Button variant="contained" color="secondary" fullWidth onClick={handlePlayRound}>
+              <Button
+                variant="contained"
+                color="secondary"
+                fullWidth
+                onClick={handlePlayRound}
+                data-testid="play-round-btn"
+              >
                 Play Round
               </Button>
             )}
@@ -221,7 +225,14 @@ function Battle() {
                 >
                   {winner} wins!
                 </Typography>
-                <Button variant="contained" color="primary" fullWidth sx={{ mt: 1 }} onClick={handlePlayAgain}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ mt: 1 }}
+                  onClick={handlePlayAgain}
+                  data-testid="play-again-btn"
+                >
                   Play Again
                 </Button>
                 <Button
@@ -230,6 +241,7 @@ function Battle() {
                   fullWidth
                   sx={{ mt: 1 }}
                   onClick={() => navigate("/characters")}
+                  data-testid="pick-new-btn"
                 >
                   Pick New Character
                 </Button>
@@ -241,6 +253,7 @@ function Battle() {
             </Typography>
             <div
               ref={logRef}
+              data-testid="battle-log"
               style={{
                 maxHeight: "250px",
                 overflowY: "auto",
@@ -259,23 +272,37 @@ function Battle() {
                 <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                   {log.map((entry, idx) => (
                     <li key={idx} style={{ marginBottom: "0.75rem" }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: "bold" }}
+                        data-testid={`round-${idx + 1}-heading`}
+                      >
                         Round {idx + 1}
                       </Typography>
-                      <Typography variant="body2">{entry.summary}</Typography>
-                      {entry.result === "draw" ? (
-                        <Typography variant="body2" sx={{ color: "gray" }}>
-                          Draw
-                        </Typography>
-                      ) : entry.result === "hero" ? (
-                        <Typography variant="body2" sx={{ color: "green" }}>
-                          🦸 {hero.name} wins 🦸
-                        </Typography>
-                      ) : (
-                        <Typography variant="body2" sx={{ color: "red" }}>
-                          🦹 {opponent.name} wins 🦹
-                        </Typography>
-                      )}
+                      <Typography
+                        variant="body2"
+                        data-testid={`round-${idx + 1}-choices`}
+                      >
+                        {entry.summary}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        data-testid={`round-${idx + 1}-outcome`}
+                        sx={{
+                          color:
+                            entry.result === "hero"
+                              ? "green"
+                              : entry.result === "villain"
+                              ? "red"
+                              : "gray",
+                        }}
+                      >
+                        {entry.result === "draw"
+                          ? "Draw"
+                          : entry.result === "hero"
+                          ? `🦸 ${hero.name} wins 🦸`
+                          : `🦹 ${opponent.name} wins 🦹`}
+                      </Typography>
                       <hr style={{ margin: "6px 0", border: "0.5px solid #eee" }} />
                     </li>
                   ))}

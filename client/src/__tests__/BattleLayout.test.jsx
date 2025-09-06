@@ -1,5 +1,5 @@
 // BattleLayout.test.jsx
-// Tests for Battle page UI layout with hero vs opponent.
+// Tests for Battle page UI layout with hero vs opponent using data-testid.
 
 import React from "react"
 import { describe, test, expect, vi, beforeEach } from "vitest"
@@ -40,33 +40,8 @@ describe("Battle page layout", () => {
       </MemoryRouter>
     )
 
-    // Hero shows up
-    await waitFor(() => {
-      expect(screen.getByText(/Batman/i)).toBeInTheDocument()
-    })
-
-    // Opponent shows up
-    await waitFor(() => {
-      expect(screen.getByText(/Superman/i)).toBeInTheDocument()
-    })
-  })
-
-  test("displays hero and opponent side by side", async () => {
-    render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
-        <Routes>
-          <Route path="/battle" element={<Battle />} />
-        </Routes>
-      </MemoryRouter>
-    )
-
-    const heroCard = await screen.findByTestId("battle-card-hero")
-    const opponentCard = await screen.findByTestId("battle-card-opponent")
-
-    expect(heroCard).toBeInTheDocument()
-    expect(opponentCard).toBeInTheDocument()
+    expect(await screen.findByTestId("battle-card-hero")).toBeInTheDocument()
+    expect(await screen.findByTestId("battle-card-opponent")).toBeInTheDocument()
   })
 
   test("shows fallback if no hero selected", () => {
@@ -92,8 +67,8 @@ describe("Battle page layout", () => {
       </MemoryRouter>
     )
 
-    expect(await screen.findByTestId("round-counter")).toHaveTextContent(/Round 1/i)
-    expect(screen.getByText(/Score:/i)).toBeInTheDocument()
+    expect(await screen.findByTestId("round-counter")).toHaveTextContent("Round 1")
+    expect(screen.getByTestId("score-display")).toHaveTextContent("Score: 0 - 0")
   })
 
   test("appends entries to battle log after playing rounds", async () => {
@@ -107,15 +82,15 @@ describe("Battle page layout", () => {
       </MemoryRouter>
     )
 
-    const playButton = await screen.findByRole("button", { name: /play round/i })
+    const playButton = await screen.findByTestId("play-round-btn")
     fireEvent.click(playButton)
 
-    await waitFor(() => {
-      expect(screen.getByText(/Round 1:/i)).toBeInTheDocument()
-    })
+    expect(await screen.findByTestId("round-1-heading")).toBeInTheDocument()
+    expect(screen.getByTestId("round-1-choices")).toBeInTheDocument()
+    expect(screen.getByTestId("round-1-outcome")).toBeInTheDocument()
   })
 
-  test("battle log container is rendered (future scrollable)", async () => {
+  test("shows winner message after best of 3", async () => {
     render(
       <MemoryRouter
         initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
@@ -126,6 +101,67 @@ describe("Battle page layout", () => {
       </MemoryRouter>
     )
 
-    expect(await screen.findByText(/Battle Log/i)).toBeInTheDocument()
+    const playButton = await screen.findByTestId("play-round-btn")
+    fireEvent.click(playButton)
+    fireEvent.click(playButton)
+    fireEvent.click(playButton)
+
+    expect(await screen.findByTestId("winner-message")).toBeInTheDocument()
+  })
+
+  test("play again resets the game", async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
+      >
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    const playButton = await screen.findByTestId("play-round-btn")
+    fireEvent.click(playButton)
+    fireEvent.click(playButton)
+    fireEvent.click(playButton)
+
+    const playAgain = await screen.findByTestId("play-again-btn")
+    fireEvent.click(playAgain)
+
+    expect(await screen.findByTestId("round-counter")).toHaveTextContent("Round 1")
+    expect(screen.getByTestId("score-display")).toHaveTextContent("Score: 0 - 0")
+  })
+
+  test("pick new character button is rendered after winner", async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
+      >
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    const playButton = await screen.findByTestId("play-round-btn")
+    fireEvent.click(playButton)
+    fireEvent.click(playButton)
+    fireEvent.click(playButton)
+
+    expect(await screen.findByTestId("pick-new-btn")).toBeInTheDocument()
+  })
+
+  test("battle log container is rendered", async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
+      >
+        <Routes>
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    expect(await screen.findByTestId("battle-log")).toBeInTheDocument()
   })
 })
