@@ -1,9 +1,22 @@
 // Battle.jsx
-// Placeholder page where battle results will be displayed.
-
-import React from 'react'
+import React from "react"
+import { useLocation } from "react-router-dom"
 
 function Battle() {
-  return <h2>Battle results will show here</h2>
+  const location = useLocation()
+  const hero = location.state?.hero
+
+  if (!hero) {
+    return <h2>No hero selected. Go back to Characters.</h2>
+  }
+
+  return (
+    <div>
+      <h2>Battle Page</h2>
+      <p>Selected Hero: {hero.name}</p>
+      <p>Strength: {hero.powerstats.strength}</p>
+    </div>
+  )
 }
+
 export default Battle
