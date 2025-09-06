@@ -4,7 +4,7 @@ import { describe, test, expect, vi, beforeEach } from "vitest"
 import { render, screen, fireEvent } from "@testing-library/react"
 import { MemoryRouter, Routes, Route } from "react-router-dom"
 import Battle from "../pages/Battle"
-import * as rpsLogic from "../utils/rpsLogic"
+import { decideRPSChoice } from "../utils/rpsLogic"
 
 const mockHero = { id: 70, name: "Batman", image: "batman.jpg", powerstats: {} }
 const mockOpponent = { id: 644, name: "Superman", image: "superman.jpg", powerstats: {} }
@@ -32,7 +32,7 @@ describe("Battle round resolution", () => {
   })
 
   test("increments hero score when hero wins round", async () => {
-    vi.spyOn(rpsLogic, "decideRPSChoice")
+    vi.spyOn(require("../utils/rpsLogic"), "decideRPSChoice")
       .mockReturnValueOnce("rock") // hero
       .mockReturnValueOnce("scissors") // opponent
 
@@ -50,7 +50,7 @@ describe("Battle round resolution", () => {
   })
 
   test("declares winner after best-of-3", async () => {
-    vi.spyOn(rpsLogic, "decideRPSChoice")
+    vi.spyOn(require("../utils/rpsLogic"), "decideRPSChoice")
       .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win
       .mockReturnValueOnce("rock").mockReturnValueOnce("scissors") // hero win
 
