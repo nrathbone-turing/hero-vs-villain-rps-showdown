@@ -42,38 +42,35 @@ function Battle() {
   }, [hero])
 
   function handlePlayRound() {
-  if (!hero || !opponent || winner) return
+    if (!hero || !opponent || winner) return
 
-  const heroChoice = decideRPSChoice(hero)
-  const opponentChoice = decideRPSChoice(opponent)
+    const heroChoice = decideRPSChoice(hero)
+    const opponentChoice = decideRPSChoice(opponent)
 
-  let newHeroScore = heroScore
-  let newOpponentScore = opponentScore
-  let outcome = "Draw"
+    let newHeroScore = heroScore
+    let newOpponentScore = opponentScore
+    let outcome = "Draw"
 
-  if (
-    (heroChoice === "rock" && opponentChoice === "scissors") ||
-    (heroChoice === "paper" && opponentChoice === "rock") ||
-    (heroChoice === "scissors" && opponentChoice === "paper")
-  ) {
-    newHeroScore++
-    outcome = `${hero.name} wins`
-  } else if (heroChoice !== opponentChoice) {
-    newOpponentScore++
-    outcome = `${opponent.name} wins`
-  }
+    if (
+      (heroChoice === "rock" && opponentChoice === "scissors") ||
+      (heroChoice === "paper" && opponentChoice === "rock") ||
+      (heroChoice === "scissors" && opponentChoice === "paper")
+    ) {
+      newHeroScore++
+      outcome = `${hero.name} wins`
+    } else if (heroChoice !== opponentChoice) {
+      newOpponentScore++
+      outcome = `${opponent.name} wins`
+    }
 
-  // Log round
-  const entry = `Round ${round}: ${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice} → ${outcome}`
-  setLog((prev) => [...prev, entry])
+    const entry = `Round ${round}: ${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice} → ${outcome}`
+    setLog((prev) => [...prev, entry])
 
-  // Update scores + round
-  setHeroScore(newHeroScore)
-  setOpponentScore(newOpponentScore)
-  setRound((prev) => prev + 1)
+    setHeroScore(newHeroScore)
+    setOpponentScore(newOpponentScore)
+    setRound((prev) => prev + 1)
 
-  // winner is only set when someone reaches 2 wins
-  if (newHeroScore === 2) {
+    if (newHeroScore === 2) {
       setWinner(hero.name)
     } else if (newOpponentScore === 2) {
       setWinner(opponent.name)
@@ -87,7 +84,6 @@ function Battle() {
     setWinner(null)
     setLog([])
 
-    // reroll new opponent (could be same one again, since it’s random)
     async function rerollOpponent() {
       try {
         const response = await fetch("/api/popular-heroes")
@@ -103,11 +99,7 @@ function Battle() {
     rerollOpponent()
   }
 
-
-  if (!hero) {
-    return <h2>No hero selected. Go back to Characters.</h2>
-  }
-
+  if (!hero) return <h2>No hero selected. Go back to Characters.</h2>
   if (loading) return <p>Loading battle...</p>
   if (error) return <p>{error}</p>
 
@@ -116,10 +108,15 @@ function Battle() {
       <h2>Battle Page</h2>
       <Grid container spacing={2} justifyContent="center" sx={{ marginTop: 2 }}>
         {/* Selected Hero */}
-        <Grid item xs={12} sm={6} md={5}>
-          <Card data-testid="battle-card-hero">
+        <Grid xs={12} sm={6} md={5}>
+          <Card data-testid="battle-card-hero" sx={{ width: 320, mx: "auto" }}>
             {hero.image && (
-              <CardMedia component="img" height="200" image={hero.image} alt={hero.name} />
+              <CardMedia
+                component="img"
+                sx={{ height: 325, objectFit: "cover", width: "100%" }}
+                image={hero.image}
+                alt={hero.name}
+              />
             )}
             <CardContent>
               <Typography variant="h6">Selected Hero: {hero.name}</Typography>
@@ -130,21 +127,19 @@ function Battle() {
 
         {/* Opponent */}
         {opponent && (
-          <Grid item xs={12} sm={6} md={5}>
-            <Card data-testid="battle-card-opponent">
+          <Grid xs={12} sm={6} md={5}>
+            <Card data-testid="battle-card-opponent" sx={{ width: 320, mx: "auto" }}>
               {opponent.image && (
                 <CardMedia
                   component="img"
-                  height="200"
+                  sx={{ height: 325, objectFit: "cover", width: "100%" }}
                   image={opponent.image}
                   alt={opponent.name}
                 />
               )}
               <CardContent>
                 <Typography variant="h6">Opponent: {opponent.name}</Typography>
-                <Typography variant="body2">
-                  Strength: {opponent.powerstats.strength}
-                </Typography>
+                <Typography variant="body2">Strength: {opponent.powerstats.strength}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -154,42 +149,21 @@ function Battle() {
       {/* Scoreboard + controls */}
       <div style={{ marginTop: "1rem", textAlign: "center" }}>
         <Typography variant="h6">Round {round}</Typography>
-        <Typography variant="body1">
-          Score: {heroScore} - {opponentScore}
-        </Typography>
+        <Typography variant="body1">Score: {heroScore} - {opponentScore}</Typography>
 
-        {/* Ongoing battle */}
         {!winner && (
-          <Button
-            variant="contained"
-            color="secondary"
-            sx={{ marginTop: 1 }}
-            onClick={handlePlayRound}
-          >
+          <Button variant="contained" color="secondary" sx={{ marginTop: 1 }} onClick={handlePlayRound}>
             Play Round
           </Button>
         )}
 
-        {/* Battle finished */}
         {winner && (
           <div>
-            <Typography variant="h5" sx={{ marginTop: 2 }}>
-              {winner} wins!
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ marginTop: 1, marginRight: 1 }}
-              onClick={handlePlayAgain}
-            >
+            <Typography variant="h5" sx={{ marginTop: 2 }}>{winner} wins!</Typography>
+            <Button variant="contained" color="primary" sx={{ marginTop: 1, marginRight: 1 }} onClick={handlePlayAgain}>
               Play Again
             </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              sx={{ marginTop: 1 }}
-              onClick={() => navigate("/characters")}
-            >
+            <Button variant="outlined" color="secondary" sx={{ marginTop: 1 }} onClick={() => navigate("/characters")}>
               Pick New Character
             </Button>
           </div>

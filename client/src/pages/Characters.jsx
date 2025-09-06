@@ -41,7 +41,7 @@ function Characters() {
             {hero.image && (
               <CardMedia
                 component="img"
-                height="200"
+                sx={{ height: 250, objectFit: "cover" }} // enforce consistent height and cropping
                 image={hero.image}
                 alt={hero.name}
               />
