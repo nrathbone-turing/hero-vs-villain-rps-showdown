@@ -18,7 +18,9 @@ export function decideRPSChoice(hero) {
   const scissorsWeight = speed + combat
 
   const total = rockWeight + paperWeight + scissorsWeight
-  if (total === 0) return "rock" // fallback
+    if (total === 0) {
+        return ["rock", "paper", "scissors"][Math.floor(Math.random() * 3)]
+    } // fallback
 
   // Random roll across weighted ranges
   const roll = Math.random() * total
