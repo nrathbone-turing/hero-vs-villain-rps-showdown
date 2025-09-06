@@ -4,13 +4,15 @@
   "version": "1.0.0",
   "type": "module",
 
-    "scripts": {
-    "dev:client": "vite --config client/vite.config.js",
-    "dev:server": "node server/index.js",
-    "test:client": "vitest --dir client",
-    "test:server": "vitest --dir server",
-    "test": "npm run test:client && npm run test:server"
-    },
+"scripts": {
+  "dev:client": "vite --config client/vite.config.js",
+  "dev:server": "node server/index.js",
+  "test:client": "vitest --dir client",
+  "test:server": "vitest --dir server",
+  "test": "npm run test:client && npm run test:server"
+},
+
+  "homepage": ".",
 
   "dependencies": {
     "axios": "^1.11.0",

@@ -5,6 +5,7 @@ export const popularHeroes = [
   {
     id: 70,
     name: "Batman",
+    image: "https://www.superherodb.com/pictures2/portraits/10/100/639.jpg",
     powerstats: {
       intelligence: "100",
       strength: "26",
@@ -17,6 +18,7 @@ export const popularHeroes = [
   {
     id: 644,
     name: "Superman",
+    image: "https://www.superherodb.com/pictures2/portraits/10/100/791.jpg",
     powerstats: {
       intelligence: "94",
       strength: "100",
@@ -29,6 +31,7 @@ export const popularHeroes = [
   {
     id: 720,
     name: "Wonder Woman",
+    image: "https://www.superherodb.com/pictures2/portraits/10/100/807.jpg",
     powerstats: {
       intelligence: "88",
       strength: "100",
@@ -41,6 +44,7 @@ export const popularHeroes = [
   {
     id: 620,
     name: "Spider-Man",
+    image: "https://www.superherodb.com/pictures2/portraits/10/100/133.jpg",
     powerstats: {
       intelligence: "90",
       strength: "55",

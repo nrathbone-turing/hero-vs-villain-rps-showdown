@@ -1,8 +1,8 @@
 // Characters.jsx
-// Displays a list of popular heroes with full powerstats and Select buttons.
+// Displays a list of popular heroes with full powerstats, image, and Select buttons.
 
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent, Typography, Button, Grid } from '@mui/material'
+import { Card, CardContent, CardMedia, Typography, Button, Grid } from '@mui/material'
 
 function Characters() {
   const [heroes, setHeroes] = useState([])
@@ -35,6 +35,15 @@ function Characters() {
       {heroes.map((hero) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={hero.id}>
           <Card data-testid={`hero-card-${hero.id}`} sx={{ maxWidth: 300, margin: 'auto' }}>
+            {/* 👇 New image section */}
+            {hero.image && (
+              <CardMedia
+                component="img"
+                height="200"
+                image={hero.image}
+                alt={hero.name}
+              />
+            )}
             <CardContent>
               <Typography variant="h6" component="h3">
                 {hero.name}
