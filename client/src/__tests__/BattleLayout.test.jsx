@@ -62,9 +62,12 @@ describe("Battle page layout", () => {
       </MemoryRouter>
     )
 
-    // Both cards should render eventually
-    const cards = await screen.findAllByRole("img")
-    expect(cards).toHaveLength(2)
+    // Find both battle cards by testid
+    const heroCard = await screen.findByTestId("battle-card-hero")
+    const opponentCard = await screen.findByTestId("battle-card-opponent")
+
+    expect(heroCard).toBeInTheDocument()
+    expect(opponentCard).toBeInTheDocument()
   })
 
   test("shows fallback if no hero selected", () => {
