@@ -6,9 +6,12 @@
   "scripts": {
     "dev:client": "vite --config client/vite.config.js",
     "dev:server": "node server/index.js",
-    "test:client": "vitest --dir client",
-    "test:server": "vitest --dir server",
-    "test": "npm run test:client && npm run test:server"
+    "test:client": "vitest --dir client --reporter=dot",
+    "test:client:verbose": "vitest --dir client --reporter=verbose",
+    "test:server": "vitest --dir server --reporter=dot",
+    "test:server:verbose": "vitest --dir server --reporter=verbose",
+    "test": "npm run test:client && npm run test:server",
+    "test:verbose": "npm run test:client:verbose && npm run test:server:verbose"
   },
   "homepage": ".",
   "dependencies": {
