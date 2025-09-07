@@ -91,8 +91,6 @@ npm run dev --prefix client
 # -> http://localhost:5173
 ```
 
-The client proxy (via `vite.config.js`) forwards `/api/*` requests to the server.
-
 ---
 
 ## API Endpoints
