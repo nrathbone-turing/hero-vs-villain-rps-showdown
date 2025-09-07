@@ -35,34 +35,22 @@ describe("Battle page", () => {
     const hero = mockHeroes[0] // Batman
 
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
       </MemoryRouter>
     )
 
-    // Selected hero should render
-    await waitFor(() => {
-      expect(screen.getByText(/Selected Hero: Batman/i)).toBeInTheDocument()
-      expect(screen.getByText(/Strength: 50/i)).toBeInTheDocument()
-      expect(screen.getByRole("img", { name: /batman/i })).toHaveAttribute(
-        "src",
-        "batman.jpg"
-      )
-    })
+    // Hero should render
+    expect(await screen.findByTestId("hero-name")).toHaveTextContent("Batman")
+    expect(screen.getByText(/Strength: 50/i)).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: /batman/i })).toHaveAttribute("src", "batman.jpg")
 
-    // Opponent (Superman) should render
-    await waitFor(() => {
-      expect(screen.getByText(/Opponent: Superman/i)).toBeInTheDocument()
-      expect(screen.getByText(/Strength: 1000/i)).toBeInTheDocument()
-      expect(screen.getByRole("img", { name: /superman/i })).toHaveAttribute(
-        "src",
-        "superman.jpg"
-      )
-    })
+    // Opponent should render
+    expect(await screen.findByTestId("opponent-name")).toHaveTextContent("Superman")
+    expect(screen.getByText(/Strength: 1000/i)).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: /superman/i })).toHaveAttribute("src", "superman.jpg")
   })
 
   test("shows error if opponent fetch fails", async () => {
@@ -71,20 +59,14 @@ describe("Battle page", () => {
     const hero = mockHeroes[0]
 
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
       </MemoryRouter>
     )
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(/error fetching opponent/i)
-      ).toBeInTheDocument()
-    })
+    expect(await screen.findByText(/error fetching opponent/i)).toBeInTheDocument()
   })
 
   test("shows message if no hero is selected", () => {
@@ -96,8 +78,6 @@ describe("Battle page", () => {
       </MemoryRouter>
     )
 
-    expect(
-      screen.getByText(/no hero selected/i)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/no hero selected/i)).toBeInTheDocument()
   })
 })

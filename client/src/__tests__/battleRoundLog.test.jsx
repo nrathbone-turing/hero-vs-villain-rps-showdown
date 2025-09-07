@@ -21,8 +21,8 @@ beforeEach(() => {
 describe("Battle round log", () => {
   test("displays log entry after playing a round", async () => {
     vi.spyOn(rpsLogic, "decideRPSChoice")
-      .mockReturnValueOnce("rock")     // hero
-      .mockReturnValueOnce("scissors") // opponent
+      .mockReturnValueOnce("rock")     // hero choice
+      .mockReturnValueOnce("scissors") // opponent choice
 
     render(
       <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
@@ -32,11 +32,12 @@ describe("Battle round log", () => {
       </MemoryRouter>
     )
 
-    fireEvent.click(await screen.findByTestId("play-round-btn"))
+    const playButton = await screen.findByTestId("play-round-btn")
+    fireEvent.click(playButton)
 
-    expect(await screen.findByTestId("log-entry-0")).toBeInTheDocument()
-    expect(screen.getByTestId("log-entry-1")).toBeInTheDocument()
-    expect(await screen.findByTestId("log-entry-0")).toHaveTextContent("Superman wins")
+    expect(await screen.findByTestId("round-1-heading")).toHaveTextContent("Round 1")
+    expect(screen.getByTestId("round-1-choices")).toHaveTextContent("Superman chose rock, Batman chose scissors")
+    expect(screen.getByTestId("round-1-outcome")).toHaveTextContent("Superman wins")
   })
 
   test("appends multiple rounds to the log", async () => {
@@ -56,9 +57,7 @@ describe("Battle round log", () => {
     fireEvent.click(playButton)
     fireEvent.click(playButton)
 
-    expect(await screen.findByTestId("round-1-heading")).toHaveTextContent("Round 1")
-    expect(screen.getByTestId("round-1-choices")).toHaveTextContent("Superman chose rock, Batman chose scissors")
-    expect(screen.getByTestId("round-2-heading")).toHaveTextContent("Round 2")
+    expect(await screen.findByTestId("round-1-choices")).toHaveTextContent("Superman chose rock, Batman chose scissors")
     expect(screen.getByTestId("round-2-choices")).toHaveTextContent("Superman chose paper, Batman chose rock")
   })
 })

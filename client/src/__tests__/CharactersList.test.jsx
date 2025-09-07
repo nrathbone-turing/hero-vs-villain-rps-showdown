@@ -129,7 +129,6 @@ describe("Characters page (list view)", () => {
     })
 
     renderWithRouter(<Characters />)
-
     expect(await screen.findByTestId("characters-heading")).toBeInTheDocument()
   })
 

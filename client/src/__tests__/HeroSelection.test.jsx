@@ -34,28 +34,28 @@ beforeEach(() => {
 
 describe("Hero selection flow", () => {
   test("navigates to Battle page and shows selected hero", async () => {
-  render(
-    <MemoryRouter initialEntries={["/characters"]}>
-      <Routes>
-        <Route path="/characters" element={<Characters />} />
-        <Route path="/battle" element={<Battle />} />
-      </Routes>
-    </MemoryRouter>
-  )
+    render(
+      <MemoryRouter initialEntries={["/characters"]}>
+        <Routes>
+          <Route path="/characters" element={<Characters />} />
+          <Route path="/battle" element={<Battle />} />
+        </Routes>
+      </MemoryRouter>
+    )
 
-  // Wait for heroes
-  await waitFor(() => {
-    expect(screen.getByText(/Batman/i)).toBeInTheDocument()
+    // Wait for heroes
+    await waitFor(() => {
+      expect(screen.getByText(/Batman/i)).toBeInTheDocument()
+    })
+
+    // Click select
+    const batmanButton = screen.getByRole("button", { name: /select batman/i })
+    await userEvent.click(batmanButton)
+
+    // Assert Battle page shows hero details
+    await waitFor(() => {
+      expect(screen.getByTestId("hero-name")).toHaveTextContent("Hero: Batman")
+      expect(screen.getByText(/Strength: 50/i)).toBeInTheDocument()
+    })
   })
-
-  // Click select
-  const batmanButton = screen.getByRole("button", { name: /select batman/i })
-  await userEvent.click(batmanButton)
-
-  // Assert Battle page shows hero details
-  await waitFor(() => {
-    expect(screen.getByText(/Selected Hero: Batman/i)).toBeInTheDocument()
-    expect(screen.getByText(/Strength: 50/i)).toBeInTheDocument()
-  })
-})
 })

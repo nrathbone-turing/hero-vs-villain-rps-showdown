@@ -45,9 +45,7 @@ describe("Battle retry options", () => {
       .mockReturnValueOnce("rock").mockReturnValueOnce("scissors")
 
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
           <Route path="/characters" element={<Characters />} />
@@ -79,6 +77,5 @@ describe("Battle retry options", () => {
 
     expect(await screen.findByTestId("play-again-btn")).toBeInTheDocument()
     expect(await screen.findByTestId("pick-new-btn")).toBeInTheDocument()
-
   })
 })

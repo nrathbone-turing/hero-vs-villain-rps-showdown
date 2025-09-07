@@ -2,10 +2,11 @@
 // Tests for Battle page UI layout with hero vs opponent using data-testid.
 
 import React from "react"
-import { describe, test, expect, vi, beforeEach } from "vitest"
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest"
 import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { MemoryRouter, Routes, Route } from "react-router-dom"
 import Battle from "../pages/Battle"
+import * as rpsLogic from "../utils/rpsLogic"
 
 const mockHero = {
   id: 70,
@@ -22,18 +23,34 @@ const mockOpponent = {
 }
 
 beforeEach(() => {
+  // Mock API
   global.fetch = vi.fn().mockResolvedValue({
     ok: true,
     json: async () => [mockHero, mockOpponent],
   })
 })
 
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+/** Helper: hero wins two rounds (best-of-3 ends 2-0)
+ * call order in component is: hero, opponent, hero, opponent, ...
+ */
+function stubHeroWinsTwoRounds() {
+  vi.spyOn(rpsLogic, "decideRPSChoice")
+    // Round 1: hero rock beats opponent scissors
+    .mockReturnValueOnce("rock")      // hero
+    .mockReturnValueOnce("scissors")  // opponent
+    // Round 2: hero paper beats opponent rock
+    .mockReturnValueOnce("paper")     // hero
+    .mockReturnValueOnce("rock")      // opponent
+}
+
 describe("Battle page layout", () => {
   test("renders both hero and opponent cards", async () => {
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
@@ -58,9 +75,7 @@ describe("Battle page layout", () => {
 
   test("renders round counter and score", async () => {
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
@@ -72,10 +87,13 @@ describe("Battle page layout", () => {
   })
 
   test("appends entries to battle log after playing rounds", async () => {
+    // deterministic first round (hero wins)
+    vi.spyOn(rpsLogic, "decideRPSChoice")
+      .mockReturnValueOnce("rock")      // hero
+      .mockReturnValueOnce("scissors")  // opponent
+
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
@@ -91,10 +109,10 @@ describe("Battle page layout", () => {
   })
 
   test("shows winner message after best of 3", async () => {
+    stubHeroWinsTwoRounds()
+
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
@@ -102,7 +120,6 @@ describe("Battle page layout", () => {
     )
 
     const playButton = await screen.findByTestId("play-round-btn")
-    fireEvent.click(playButton)
     fireEvent.click(playButton)
     fireEvent.click(playButton)
 
@@ -110,10 +127,10 @@ describe("Battle page layout", () => {
   })
 
   test("play again resets the game", async () => {
+    stubHeroWinsTwoRounds()
+
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
@@ -121,7 +138,6 @@ describe("Battle page layout", () => {
     )
 
     const playButton = await screen.findByTestId("play-round-btn")
-    fireEvent.click(playButton)
     fireEvent.click(playButton)
     fireEvent.click(playButton)
 
@@ -133,10 +149,10 @@ describe("Battle page layout", () => {
   })
 
   test("pick new character button is rendered after winner", async () => {
+    stubHeroWinsTwoRounds()
+
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
@@ -146,16 +162,15 @@ describe("Battle page layout", () => {
     const playButton = await screen.findByTestId("play-round-btn")
     fireEvent.click(playButton)
     fireEvent.click(playButton)
-    fireEvent.click(playButton)
 
-    expect(await screen.findByTestId("pick-new-btn")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByTestId("pick-new-btn")).toBeInTheDocument()
+    })
   })
 
   test("battle log container is rendered", async () => {
     render(
-      <MemoryRouter
-        initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}
-      >
+      <MemoryRouter initialEntries={[{ pathname: "/battle", state: { hero: mockHero } }]}>
         <Routes>
           <Route path="/battle" element={<Battle />} />
         </Routes>
