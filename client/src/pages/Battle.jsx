@@ -30,23 +30,38 @@ function Battle() {
     }
   }, [log])
 
+  async function fetchOpponent(excludeId) {
+    try {
+      // random id in API range
+      const randomId = Math.floor(Math.random() * 731) + 1
+      const response = await fetch(`${import.meta.env.VITE_API_BASE}/hero/${randomId}`)
+      if (!response.ok) throw new Error("Network error")
+
+      const data = await response.json()
+      if (data.id === excludeId) {
+        return fetchOpponent(excludeId) // retry if same as hero
+      }
+      return data
+    } catch (err) {
+      console.warn("Falling back to /popular-heroes:", err.message)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE}/popular-heroes`)
+      const data = await response.json()
+      const candidates = data.filter((h) => h.id !== excludeId)
+      return candidates[Math.floor(Math.random() * candidates.length)]
+    }
+  }
+
   useEffect(() => {
     async function loadOpponent() {
       try {
-        const response = await fetch("/api/popular-heroes")
-        if (!response.ok) throw new Error("Network error")
-
-        const data = await response.json()
-        const candidates = data.filter((h) => h.id !== hero?.id)
-        const random = candidates[Math.floor(Math.random() * candidates.length)]
-        setOpponent(random)
-      } catch (err) {
+        const opp = await fetchOpponent(hero?.id)
+        setOpponent(opp)
+      } catch {
         setError("Error fetching opponent")
       } finally {
         setLoading(false)
       }
     }
-
     if (hero) loadOpponent()
   }, [hero])
 
@@ -72,18 +87,14 @@ function Battle() {
       result = "villain"
     }
 
-    // Add to log
     const entry = {
       summary: `${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice}`,
       result,
     }
     setLog((prev) => [...prev, entry])
-
-    // Update scores
     setHeroScore(newHeroScore)
     setOpponentScore(newOpponentScore)
 
-    // Check winner
     if (newHeroScore === 2 || newOpponentScore === 2) {
       setWinner(newHeroScore === 2 ? hero.name : opponent.name)
     } else {
@@ -91,26 +102,18 @@ function Battle() {
     }
   }
 
-  function handlePlayAgain() {
+  async function handlePlayAgain() {
     setRound(1)
     setHeroScore(0)
     setOpponentScore(0)
     setWinner(null)
     setLog([])
-
-    async function rerollOpponent() {
-      try {
-        const response = await fetch("/api/popular-heroes")
-        if (!response.ok) throw new Error("Network error")
-        const data = await response.json()
-        const candidates = data.filter((h) => h.id !== hero?.id)
-        const random = candidates[Math.floor(Math.random() * candidates.length)]
-        setOpponent(random)
-      } catch (err) {
-        setError("Error fetching opponent")
-      }
+    try {
+      const opp = await fetchOpponent(hero?.id)
+      setOpponent(opp)
+    } catch {
+      setError("Error fetching opponent")
     }
-    rerollOpponent()
   }
 
   if (!hero) return <h2>No hero selected. Return to Characters and choose your hero!</h2>
@@ -119,7 +122,6 @@ function Battle() {
 
   return (
     <div>
-      {/* Page heading for tests and accessibility */}
       <Typography
         variant="h4"
         align="center"
@@ -130,10 +132,8 @@ function Battle() {
       </Typography>
 
       <Grid container spacing={3} justifyContent="center" sx={{ marginTop: 2 }}>
-        {/* Left placeholder */}
         <Grid item xs={12} md={3}></Grid>
 
-        {/* Center: Hero + Opponent */}
         <Grid item xs={12} md={6}>
           <Grid container spacing={2} justifyContent="center">
             {/* Hero card */}
@@ -279,10 +279,7 @@ function Battle() {
                       >
                         Round {idx + 1}
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        data-testid={`round-${idx + 1}-choices`}
-                      >
+                      <Typography variant="body2" data-testid={`round-${idx + 1}-choices`}>
                         {entry.summary}
                       </Typography>
                       <Typography
