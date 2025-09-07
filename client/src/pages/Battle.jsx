@@ -6,6 +6,11 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { Grid, Card, CardContent, CardMedia, Typography, Button } from "@mui/material"
 import { decideRPSChoice } from "../utils/rpsLogic"
 
+// Utility to capitalize the first letter of a word
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1)
+}
+
 function Battle() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -30,26 +35,40 @@ function Battle() {
     }
   }, [log])
 
+  // Fetch a random opponent (normalized from API or fallback to /popular-heroes)
+  async function fetchOpponent(excludeId) {
+    try {
+      const randomId = Math.floor(Math.random() * 731) + 1
+      const response = await fetch(`${import.meta.env.VITE_API_BASE}/hero/${randomId}`)
+      if (!response.ok) throw new Error("Network error")
+      const data = await response.json()
+      if (data.id === excludeId) return fetchOpponent(excludeId) // retry if same hero
+      return data
+    } catch (err) {
+      console.warn("Falling back to /popular-heroes:", err.message)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE}/popular-heroes`)
+      const data = await response.json()
+      const candidates = data.filter((h) => h.id !== excludeId)
+      return candidates[Math.floor(Math.random() * candidates.length)]
+    }
+  }
+
+  // Load opponent on mount
   useEffect(() => {
     async function loadOpponent() {
       try {
-        const response = await fetch("/api/popular-heroes")
-        if (!response.ok) throw new Error("Network error")
-
-        const data = await response.json()
-        const candidates = data.filter((h) => h.id !== hero?.id)
-        const random = candidates[Math.floor(Math.random() * candidates.length)]
-        setOpponent(random)
-      } catch (err) {
+        const opp = await fetchOpponent(hero?.id)
+        setOpponent(opp)
+      } catch {
         setError("Error fetching opponent")
       } finally {
         setLoading(false)
       }
     }
-
     if (hero) loadOpponent()
   }, [hero])
 
+  // Play one round of RPS
   function handlePlayRound() {
     if (!hero || !opponent || winner) return
 
@@ -73,11 +92,10 @@ function Battle() {
     }
 
     // Add to log
-    const entry = {
-      summary: `${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice}`,
-      result,
-    }
-    setLog((prev) => [...prev, entry])
+    setLog((prev) => [
+      ...prev,
+      { summary: `${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice}`, result },
+    ])
 
     // Update scores
     setHeroScore(newHeroScore)
@@ -91,26 +109,19 @@ function Battle() {
     }
   }
 
-  function handlePlayAgain() {
+  // Reset and reroll opponent
+  async function handlePlayAgain() {
     setRound(1)
     setHeroScore(0)
     setOpponentScore(0)
     setWinner(null)
     setLog([])
-
-    async function rerollOpponent() {
-      try {
-        const response = await fetch("/api/popular-heroes")
-        if (!response.ok) throw new Error("Network error")
-        const data = await response.json()
-        const candidates = data.filter((h) => h.id !== hero?.id)
-        const random = candidates[Math.floor(Math.random() * candidates.length)]
-        setOpponent(random)
-      } catch (err) {
-        setError("Error fetching opponent")
-      }
+    try {
+      const opp = await fetchOpponent(hero?.id)
+      setOpponent(opp)
+    } catch {
+      setError("Error fetching opponent")
     }
-    rerollOpponent()
   }
 
   if (!hero) return <h2>No hero selected. Return to Characters and choose your hero!</h2>
@@ -149,16 +160,12 @@ function Battle() {
                   <Typography variant="h6" data-testid="hero-name">
                     <span style={{ color: "green", fontWeight: "bold" }}>Hero:</span> {hero.name}
                   </Typography>
-                  {hero.powerstats && (
-                    <>
-                      <Typography variant="body2">Intelligence: {hero.powerstats.intelligence}</Typography>
-                      <Typography variant="body2">Strength: {hero.powerstats.strength}</Typography>
-                      <Typography variant="body2">Speed: {hero.powerstats.speed}</Typography>
-                      <Typography variant="body2">Durability: {hero.powerstats.durability}</Typography>
-                      <Typography variant="body2">Power: {hero.powerstats.power}</Typography>
-                      <Typography variant="body2">Combat: {hero.powerstats.combat}</Typography>
-                    </>
-                  )}
+                  {hero.powerstats &&
+                    Object.entries(hero.powerstats).map(([key, val]) => (
+                      <Typography key={key} variant="body2">
+                        {capitalize(key)}: {val}
+                      </Typography>
+                    ))}
                 </CardContent>
               </Card>
             </Grid>
@@ -177,16 +184,12 @@ function Battle() {
                     <Typography variant="h6" data-testid="opponent-name">
                       <span style={{ color: "red", fontWeight: "bold" }}>Villain:</span> {opponent.name}
                     </Typography>
-                    {opponent.powerstats && (
-                      <>
-                        <Typography variant="body2">Intelligence: {opponent.powerstats.intelligence}</Typography>
-                        <Typography variant="body2">Strength: {opponent.powerstats.strength}</Typography>
-                        <Typography variant="body2">Speed: {opponent.powerstats.speed}</Typography>
-                        <Typography variant="body2">Durability: {opponent.powerstats.durability}</Typography>
-                        <Typography variant="body2">Power: {opponent.powerstats.power}</Typography>
-                        <Typography variant="body2">Combat: {opponent.powerstats.combat}</Typography>
-                      </>
-                    )}
+                    {opponent.powerstats &&
+                      Object.entries(opponent.powerstats).map(([key, val]) => (
+                        <Typography key={key} variant="body2">
+                          {capitalize(key)}: {val}
+                        </Typography>
+                      ))}
                   </CardContent>
                 </Card>
               </Grid>
@@ -279,10 +282,7 @@ function Battle() {
                       >
                         Round {idx + 1}
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        data-testid={`round-${idx + 1}-choices`}
-                      >
+                      <Typography variant="body2" data-testid={`round-${idx + 1}-choices`}>
                         {entry.summary}
                       </Typography>
                       <Typography
