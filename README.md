@@ -111,6 +111,18 @@ The client proxy (via `vite.config.js`) forwards `/api/*` requests to the server
 - /battle     - Battle page
 ```
 
+### Manual API Testing
+```
+# Health check
+curl http://localhost:5001/
+
+# Popular heroes (returns list of 4 normalized heroes)
+curl http://localhost:5001/api/popular-heroes | jq
+
+# Single hero (Batman, id=70)
+curl http://localhost:5001/api/hero/70 | jq
+```
+
 ## Running Tests
 ```
 # Run all tests (client + server)
@@ -136,6 +148,7 @@ hero-vs-villain-showdown/
 │   ├── index.html
 │   ├── public
 │   │   └── vite.svg
+        └── screenshots/        # Project screenshots for README
 │   ├── src
 │   │   ├── __tests__           # Client-side tests
 │   │   ├── App.css
@@ -164,18 +177,15 @@ hero-vs-villain-showdown/
 ---
 
 ## Future Improvements
-```
 - Deploy client (Vercel) + server (Render/Heroku/Railway)
 - Expand Characters page with searchable/filterable hero list
 - Add animations and transitions during battles
 - Improve opponent selection (e.g., balanced difficulty)
-- Save battle hist
-```
+- Persist battle history, implement player and character leaderboards
 
 ---
 
 ## About This Repo
-```
 **Author:** Nick Rathbone | [GitHub Profile](https://github.com/nrathbone-turing)
 
 This project is part of the Flatiron School Capstone course.
@@ -186,4 +196,3 @@ This project is part of the Flatiron School Capstone course.
 - Currently local dev only (deployment planned in future).
 
 **License:** MIT — feel free to use or remix!
-```
