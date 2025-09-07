@@ -2,10 +2,13 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
+import path from "path"
 import fetch from "node-fetch"
 import { popularHeroes } from "./api/popularHeroes.js"
 
-dotenv.config()
+dotenv.config({ path: path.resolve("server/.env") })
+console.log("Loaded API_KEY:", process.env.API_KEY)
+
 
 const app = express()
 app.use(cors())
