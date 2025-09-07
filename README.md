@@ -1,5 +1,7 @@
 # Hero vs Villain Showdown (React + Express)
 
+> Rock–Paper–Scissors, but with superheroes. Choose a hero, face off against a random villain, and battle in a best-of-3 showdown.
+
 A capstone project implementing a frontend React application with a backend Express proxy. The app integrates with the [SuperHero API](https://superheroapi.com/) to let users browse heroes/villains, view stats, and prepare for battles.
 
 ---
@@ -10,24 +12,40 @@ A capstone project implementing a frontend React application with a backend Expr
   - Characters page displays a grid of popular heroes with stats
   - Material UI (MUI) for card-based UI
   - Tests with Vitest + React Testing Library
+
 - **Backend (Express)**
   - Proxy route for individual hero lookups (`/api/hero/:id`) → forwards to SuperHero API
-  - Stubbed endpoint for popular heroes (`/api/popular-heroes`)
+  - Endpoint for popular heroes (`/api/popular-heroes`) with live + static fallback
   - Tests with Vitest + Supertest
 
 ---
 
 ## Features
-- **Characters**
-  - View a grid of popular heroes
-  - Each hero displayed as an MUI card with stats
-  - “Select” button (prepares for Battle page)
-- **Battle (upcoming)**
-  - Users select a hero vs villain and compare power stats
-- **Server Proxy**
-  - Protects API key and avoids CORS issues
-  - Provides `/api/hero/:id` route to retrieve full hero data
-  - Stubbed `/api/popular-heroes` route for static list
+- Character selection screen with normalized stats
+- Live API integration (SuperHero API) with static fallback
+- Random opponent selection (excludes chosen hero)
+- Battle page with:
+  - Hero and villain cards (images + powerstats)
+  - Best-of-3 Rock–Paper–Scissors rounds
+  - Dynamic battle log with round outcomes
+- Server proxy to securely handle API requests
+- Robust error handling and fallbacks if API is unavailable
+
+---
+
+## Screenshots
+
+### Characters Page
+![Characters Page](client/public/screenshots/characters.png)
+
+### Battle Page (before play)
+![Battle Page Start](client/public/screenshots/battle-start.png)
+
+### Battle Page (in progress)
+![Battle Page In Progress](client/public/screenshots/battle-progress.png)
+
+### Battle Page (after win)
+![Battle Page Winner](client/public/screenshots/battle-winner.png)
 
 ---
 
@@ -35,7 +53,6 @@ A capstone project implementing a frontend React application with a backend Expr
 - **Frontend**: React + Vite + React Router + MUI
 - **Backend**: Express + CORS + dotenv
 - **Testing**: Vitest + React Testing Library + Supertest
-- **Deployment**: Vercel (client), Render/Heroku/railway (server) — upcoming for optional stretch
 
 ---
 
@@ -51,29 +68,26 @@ npm install
 ```
 
 ### 2. Configure environment variables
-Create `.env` files for server and client.
+```
+# client/.env
+VITE_API_BASE=http://localhost:5001/api
 
-**client/.env**
-```
-VITE_API_KEY=your_api_key_here
-```
-
-**server/.env**
-```
-API_KEY=your_api_key_here
+# server/.env
+API_KEY=your_superhero_api_key_here
 PORT=5001
+
 ```
 
 ### 3. Run the app in development
 Start the server (Express API proxy):
 ```
-npm run dev:server
+npm run dev --prefix server
 # -> http://localhost:5001
 ```
 
 Start the client (React app):
 ```
-npm run dev:client
+npm run dev --prefix client
 # -> http://localhost:5173
 ```
 
@@ -84,73 +98,92 @@ The client proxy (via `vite.config.js`) forwards `/api/*` requests to the server
 ## API Endpoints
 ### Server (Express)
 
-- `GET / - health check`
-- `GET /api/popular-heroes` - returns static list of heroes
-- `GET /api/hero/:id` - fetches single hero data from SuperHero API
+```
+- GET /                   - Health check
+- GET /api/popular-heroes - Returns live or static popular heroes
+- GET /api/hero/:id       - Fetches single hero data from SuperHero API
+```
 
 ### Client (React)
-- `/` - Home page
-- `/characters` - Characters list view
-- `/battle` - Battle page (in progress)
+```
+- /           - Home page
+- /characters - Characters list view
+- /battle     - Battle page
+```
 
 ## Running Tests
-### Server
 ```
-npm run test:server
-```
-Covers:
-- `/` health check
-- `/api/hero/:id` proxy behavior (mocked fetch)
-- `/api/popular-heroes` returns static list
-
-### Client
-```
-cd client
-npm run test:client
-```
-Covers:
-- Routing (Home, Characters, Battle links)
-- Characters list rendering (loading, success, error, select button)
-
-### Both
-```
+# Run all tests (client + server)
 npm test
 ```
-Runs all client + server tests
+
+Tests include:
+```
+- Characters page renders hero cards with normalized powerstats
+- Battle page supports best-of-3 rounds and logs outcomes
+- Battle log appends multiple rounds correctly
+- Server proxy responds to health checks
+- Server proxy fetches hero data via mocked API calls
+```
 
 ---
 
 ## Project Structure
 ```
 hero-vs-villain-showdown/
-├─ README.md
-├─ package.json
-├─ client/
-│  ├─ src/
-│  │  ├─ pages/
-│  │  │  ├─ Home.jsx
-│  │  │  ├─ Characters.jsx
-│  │  │  └─ Battle.jsx
-│  │  ├─ __tests__/
-│  │  │  ├─ App.test.jsx
-│  │  │  ├─ CharactersList.test.jsx
-│  │  │  └─ ...
-│  ├─ vite.config.js
-├─ server/
-│  ├─ api/
-│  │  └─ popularHeroes.js
-│  ├─ __tests__/
-│  │  ├─ proxy.test.js
-│  │  └─ popularHeroes.test.js
-│  ├─ index.js
-└─ .gitignore
+├── client
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── public
+│   │   └── vite.svg
+│   ├── src
+│   │   ├── __tests__           # Client-side tests
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── pages               # Pages: Characters, Battle, Home
+│   │   └── utils               # Utilities (e.g., rpsLogic)
+│   └── vite.config.js
+├── LICENSE
+├── package-lock.json
+├── package.json
+├── README.md
+├── server
+│   ├── __tests__               # Server-side tests
+│   │   ├── popularHeroes.test.js
+│   │   └── proxy.test.js
+│   ├── api
+│   │   └── popularHeroes.js    # Static fallback data
+│   └── index.js                # Express server + API proxy
+├── vitest.config.js
+└── vitest.setup.js
+```
+
+---
+
+## Future Improvements
+```
+- Deploy client (Vercel) + server (Render/Heroku/Railway)
+- Expand Characters page with searchable/filterable hero list
+- Add animations and transitions during battles
+- Improve opponent selection (e.g., balanced difficulty)
+- Save battle hist
 ```
 
 ---
 
 ## About This Repo
+```
 **Author:** Nick Rathbone | [GitHub Profile](https://github.com/nrathbone-turing)
 
 This project is part of the Flatiron School Capstone course.
 
+**Notes**
+- Uses live Superhero API but falls back to static heroes if API_KEY is missing.
+- Normalized powerstats + images so UI always renders consistently.
+- Currently local dev only (deployment planned in future).
+
 **License:** MIT — feel free to use or remix!
+```
