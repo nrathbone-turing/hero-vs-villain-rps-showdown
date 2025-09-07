@@ -12,9 +12,20 @@ const mockHero = { id: 70, name: "Superman", image: "superman.jpg", powerstats: 
 const mockOpponent = { id: 71, name: "Batman", image: "batman.jpg", powerstats: {} }
 
 beforeEach(() => {
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: true,
-    json: async () => [mockHero, mockOpponent],
+  global.fetch = vi.fn().mockImplementation((url) => {
+    if (url.includes("/hero/")) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => mockOpponent, // Batman
+      })
+    }
+    if (url.includes("/popular-heroes")) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => [mockHero, mockOpponent],
+      })
+    }
+    return Promise.reject(new Error("Unknown endpoint"))
   })
 })
 
