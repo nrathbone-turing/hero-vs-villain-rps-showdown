@@ -6,6 +6,11 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { Grid, Card, CardContent, CardMedia, Typography, Button } from "@mui/material"
 import { decideRPSChoice } from "../utils/rpsLogic"
 
+// Utility to capitalize the first letter of a word
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1)
+}
+
 function Battle() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -30,17 +35,14 @@ function Battle() {
     }
   }, [log])
 
+  // Fetch a random opponent (normalized from API or fallback to /popular-heroes)
   async function fetchOpponent(excludeId) {
     try {
-      // random id in API range
       const randomId = Math.floor(Math.random() * 731) + 1
       const response = await fetch(`${import.meta.env.VITE_API_BASE}/hero/${randomId}`)
       if (!response.ok) throw new Error("Network error")
-
       const data = await response.json()
-      if (data.id === excludeId) {
-        return fetchOpponent(excludeId) // retry if same as hero
-      }
+      if (data.id === excludeId) return fetchOpponent(excludeId) // retry if same hero
       return data
     } catch (err) {
       console.warn("Falling back to /popular-heroes:", err.message)
@@ -51,6 +53,7 @@ function Battle() {
     }
   }
 
+  // Load opponent on mount
   useEffect(() => {
     async function loadOpponent() {
       try {
@@ -65,6 +68,7 @@ function Battle() {
     if (hero) loadOpponent()
   }, [hero])
 
+  // Play one round of RPS
   function handlePlayRound() {
     if (!hero || !opponent || winner) return
 
@@ -87,14 +91,17 @@ function Battle() {
       result = "villain"
     }
 
-    const entry = {
-      summary: `${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice}`,
-      result,
-    }
-    setLog((prev) => [...prev, entry])
+    // Add to log
+    setLog((prev) => [
+      ...prev,
+      { summary: `${hero.name} chose ${heroChoice}, ${opponent.name} chose ${opponentChoice}`, result },
+    ])
+
+    // Update scores
     setHeroScore(newHeroScore)
     setOpponentScore(newOpponentScore)
 
+    // Check winner
     if (newHeroScore === 2 || newOpponentScore === 2) {
       setWinner(newHeroScore === 2 ? hero.name : opponent.name)
     } else {
@@ -102,6 +109,7 @@ function Battle() {
     }
   }
 
+  // Reset and reroll opponent
   async function handlePlayAgain() {
     setRound(1)
     setHeroScore(0)
@@ -122,6 +130,7 @@ function Battle() {
 
   return (
     <div>
+      {/* Page heading for tests and accessibility */}
       <Typography
         variant="h4"
         align="center"
@@ -132,8 +141,10 @@ function Battle() {
       </Typography>
 
       <Grid container spacing={3} justifyContent="center" sx={{ marginTop: 2 }}>
+        {/* Left placeholder */}
         <Grid item xs={12} md={3}></Grid>
 
+        {/* Center: Hero + Opponent */}
         <Grid item xs={12} md={6}>
           <Grid container spacing={2} justifyContent="center">
             {/* Hero card */}
@@ -149,16 +160,12 @@ function Battle() {
                   <Typography variant="h6" data-testid="hero-name">
                     <span style={{ color: "green", fontWeight: "bold" }}>Hero:</span> {hero.name}
                   </Typography>
-                  {hero.powerstats && (
-                    <>
-                      <Typography variant="body2">Intelligence: {hero.powerstats.intelligence}</Typography>
-                      <Typography variant="body2">Strength: {hero.powerstats.strength}</Typography>
-                      <Typography variant="body2">Speed: {hero.powerstats.speed}</Typography>
-                      <Typography variant="body2">Durability: {hero.powerstats.durability}</Typography>
-                      <Typography variant="body2">Power: {hero.powerstats.power}</Typography>
-                      <Typography variant="body2">Combat: {hero.powerstats.combat}</Typography>
-                    </>
-                  )}
+                  {hero.powerstats &&
+                    Object.entries(hero.powerstats).map(([key, val]) => (
+                      <Typography key={key} variant="body2">
+                        {capitalize(key)}: {val}
+                      </Typography>
+                    ))}
                 </CardContent>
               </Card>
             </Grid>
@@ -177,16 +184,12 @@ function Battle() {
                     <Typography variant="h6" data-testid="opponent-name">
                       <span style={{ color: "red", fontWeight: "bold" }}>Villain:</span> {opponent.name}
                     </Typography>
-                    {opponent.powerstats && (
-                      <>
-                        <Typography variant="body2">Intelligence: {opponent.powerstats.intelligence}</Typography>
-                        <Typography variant="body2">Strength: {opponent.powerstats.strength}</Typography>
-                        <Typography variant="body2">Speed: {opponent.powerstats.speed}</Typography>
-                        <Typography variant="body2">Durability: {opponent.powerstats.durability}</Typography>
-                        <Typography variant="body2">Power: {opponent.powerstats.power}</Typography>
-                        <Typography variant="body2">Combat: {opponent.powerstats.combat}</Typography>
-                      </>
-                    )}
+                    {opponent.powerstats &&
+                      Object.entries(opponent.powerstats).map(([key, val]) => (
+                        <Typography key={key} variant="body2">
+                          {capitalize(key)}: {val}
+                        </Typography>
+                      ))}
                   </CardContent>
                 </Card>
               </Grid>
