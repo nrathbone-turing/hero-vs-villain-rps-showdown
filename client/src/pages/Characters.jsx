@@ -14,7 +14,7 @@ function Characters() {
   useEffect(() => {
     async function loadHeroes() {
       try {
-        const response = await fetch("/api/popular-heroes")
+        const response = await fetch(`${import.meta.env.VITE_API_BASE}/popular-heroes`)
         if (!response.ok) throw new Error("Network response was not ok")
 
         const data = await response.json()
