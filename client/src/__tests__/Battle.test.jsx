@@ -23,10 +23,18 @@ const mockHeroes = [
 ]
 
 beforeEach(() => {
-  // Mock fetch for /api/popular-heroes
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: true,
-    json: async () => mockHeroes,
+  global.fetch = vi.fn().mockImplementation((url) => {
+    if (url.includes("/popular-heroes")) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => [mockHeroes[0], mockHeroes[1]],
+      })
+    }
+    // fallback for /hero/:id
+    return Promise.resolve({
+      ok: true,
+      json: async () => mockHeroes[1], // Superman
+    })
   })
 })
 
