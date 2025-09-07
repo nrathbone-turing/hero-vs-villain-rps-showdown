@@ -3,12 +3,15 @@ import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import path from "path"
+import { fileURLToPath } from "url"
 import fetch from "node-fetch"
 import { popularHeroes } from "./api/popularHeroes.js"
 
-dotenv.config({ path: path.resolve("server/.env") })
-console.log("Loaded API_KEY:", process.env.API_KEY)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
+// Load env specifically from server/.env
+dotenv.config({ path: path.resolve(__dirname, ".env") })
 
 const app = express()
 app.use(cors())
@@ -16,55 +19,83 @@ app.use(cors())
 const PORT = process.env.PORT || 5001
 const API_KEY = process.env.API_KEY
 
+console.log(`[server] API_KEY ${API_KEY ? "loaded" : "MISSING"}`)
+
+// 🔹 Utility to normalize hero objects
+function normalizeHero(data) {
+  return {
+    id: Number(data.id),
+    name: data.name,
+    image: data.image?.url || data.image || "", // handles API + static
+    powerstats: data.powerstats || {},
+  }
+}
+
 // Health check
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("API Proxy running")
 })
 
-// Proxy: fetch a single hero by ID
+// Proxy a single hero (normalized)
 app.get("/api/hero/:id", async (req, res) => {
   try {
     const { id } = req.params
+    if (!API_KEY) return res.status(500).json({ error: "Missing API_KEY" })
+
     const url = `https://superheroapi.com/api/${API_KEY}/${id}`
+    const r = await fetch(url)
+    const text = await r.text()
+    if (!r.ok) return res.status(r.status).send(text)
 
-    const response = await fetch(url)
-    if (!response.ok) throw new Error("API request failed")
-
-    const data = await response.json()
-    res.json(data)
-  } catch (error) {
-    console.error("Proxy error:", error.message)
-    res.status(500).json({ error: "Failed to fetch hero data" })
+    const data = JSON.parse(text)
+    return res.json(normalizeHero(data))
+  } catch (err) {
+    console.error("[server] /api/hero error:", err)
+    return res.status(500).json({ error: "Failed to fetch hero" })
   }
 })
 
-// Popular heroes: try live API, else fallback to static
-app.get("/api/popular-heroes", async (req, res) => {
-  const heroIds = [70, 644, 720, 620] // Batman, Superman, Wonder Woman, Spider-Man
+// Popular heroes (normalized)
+app.get("/api/popular-heroes", async (_req, res) => {
+  const ids = [70, 644, 720, 620]
+
+  if (!API_KEY) {
+    console.warn("[server] Missing API_KEY, serving static popularHeroes")
+    return res.json(popularHeroes.map(normalizeHero))
+  }
 
   try {
-    if (!API_KEY) throw new Error("Missing API_KEY")
-
-    const requests = heroIds.map((id) =>
-      fetch(`https://superheroapi.com/api/${API_KEY}/${id}`).then((r) => r.json())
+    const results = await Promise.allSettled(
+      ids.map(async (id) => {
+        const url = `https://superheroapi.com/api/${API_KEY}/${id}`
+        const r = await fetch(url)
+        const data = await r.json()
+        return normalizeHero(data)
+      })
     )
-    const heroes = await Promise.all(requests)
 
-    // if response looks valid, return live data
-    if (heroes && heroes.length) {
-      return res.json(heroes)
-    }
+    const live = results
+      .filter((r) => r.status === "fulfilled" && r.value?.name)
+      .map((r) => r.value)
 
-    throw new Error("Empty response from API")
-  } catch (error) {
-    console.warn("Falling back to static heroes:", error.message)
-    res.json(popularHeroes) // fallback
+    if (live.length === ids.length) return res.json(live)
+
+    console.warn("[server] Some API calls failed — mixing in static fallbacks")
+    const got = new Set(live.map((h) => h.id))
+    const missingFromStatic = popularHeroes
+      .filter((h) => !got.has(h.id))
+      .map(normalizeHero)
+
+    return res.json([...live, ...missingFromStatic])
+  } catch (err) {
+    console.error("[server] /api/popular-heroes error:", err)
+    return res.json(popularHeroes.map(normalizeHero))
   }
 })
 
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+    console.log(`[server] listening on http://localhost:${PORT}`)
   })
 }
 
